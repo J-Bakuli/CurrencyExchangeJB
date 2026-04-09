@@ -1,0 +1,82 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.smarttomcat/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# Mac OS
+.DS_Store
+
+# Linux
+*~
+
+# Gradle
+.gradle/
+build/
+
+# Tools and local scripts
+db-tools.sh
+deploy.sh
+README-tools.md
+currency-exchange-app.tar
+
+# Docker
+.dockerignore
+*.tar
+*.tgz
+
+# Environment variables
+.env
+*.env
+
+# Logs and temporary files
+*.log
+*.tmp
+logs/
+data/
+tmp/
+cache/
+
+# Test output
+test-output/
+
+# Local data files
+src/main/resources/currency_exchange.db
+src/main/resources/~$dictionary.xlsx
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Local Tomcat runtime marker
+catalina.base_IS_UNDEFINED
