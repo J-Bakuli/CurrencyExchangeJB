@@ -13,16 +13,13 @@ import java.util.stream.Collectors;
 public final class InputSecurityValidation {
     private static final String SECURITY_REJECTION_MESSAGE = "Input rejected by security policy";
     private static final String FORBIDDEN_WORDS_RESOURCE = "forbidden-words.txt";
-    private static final String ALLOWED_CODES_RESOURCE = "allowed-currency-codes.txt";
 
     private static final Set<String> FORBIDDEN_WORDS_FALLBACK = Set.of(
             "gaysex", "fuck", "shit", "bitch", "asshole", "cunt", "whore",
             "porn", "anal", "rape", "sex", "nigger", "nigga", "fag"
     );
-    private static final Set<String> ALLOWED_CODES_FALLBACK = Set.of("USD", "EUR", "RUB");
 
-    private static final Set<String> FORBIDDEN_WORDS = loadSetFromResource(FORBIDDEN_WORDS_RESOURCE, FORBIDDEN_WORDS_FALLBACK, false);
-    private static final Set<String> ALLOWED_CODES = loadSetFromResource(ALLOWED_CODES_RESOURCE, ALLOWED_CODES_FALLBACK, true);
+    private static final Set<String> FORBIDDEN_WORDS = loadSetFromResource(FORBIDDEN_WORDS_RESOURCE, FORBIDDEN_WORDS_FALLBACK);
 
     private InputSecurityValidation() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
@@ -32,24 +29,11 @@ public final class InputSecurityValidation {
         validateNoForbiddenContent(name);
         validateNoForbiddenContent(code);
         validateNoForbiddenContent(sign);
-        validateCodeWhitelist(code);
     }
 
     public static void validateExchangeRateWrite(String baseCode, String targetCode) {
         validateNoForbiddenContent(baseCode);
         validateNoForbiddenContent(targetCode);
-        validateCodeWhitelist(baseCode);
-        validateCodeWhitelist(targetCode);
-    }
-
-    private static void validateCodeWhitelist(String code) {
-        if (code == null) {
-            throw new ValidationException(SECURITY_REJECTION_MESSAGE);
-        }
-        String normalized = code.trim().toUpperCase();
-        if (!ALLOWED_CODES.contains(normalized)) {
-            throw new ValidationException(SECURITY_REJECTION_MESSAGE);
-        }
     }
 
     private static void validateNoForbiddenContent(String value) {
@@ -89,7 +73,7 @@ public final class InputSecurityValidation {
         return sb.toString();
     }
 
-    private static Set<String> loadSetFromResource(String resource, Set<String> fallback, boolean uppercase) {
+    private static Set<String> loadSetFromResource(String resource, Set<String> fallback) {
         InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
         if (input == null) {
             return fallback;
@@ -100,7 +84,7 @@ public final class InputSecurityValidation {
                     .map(String::trim)
                     .filter(line -> !line.isEmpty())
                     .filter(line -> !line.startsWith("#"))
-                    .map(line -> uppercase ? line.toUpperCase() : line.toLowerCase())
+                    .map(String::toLowerCase)
                     .collect(Collectors.toSet());
             if (loaded.isEmpty()) {
                 return fallback;
