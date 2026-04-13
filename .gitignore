@@ -65,8 +65,7 @@ cache/
 test-output/
 
 # Local data files
-src/main/resources/currency_exchange.db
-src/main/resources/~$dictionary.xlsx
+src/main/resources/db/currency_exchange.db
 
 # Package files
 *.jar
