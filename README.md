@@ -48,9 +48,8 @@ mvn clean package
    - конфиг подключения: `src/main/resources/datasource.properties`
    - JDBC URL по умолчанию: `jdbc:sqlite:src/main/resources/db/currency_exchange.db`
 3. Если нужен другой путь к БД — поменяйте `jdbcUrl` в `datasource.properties`.
-4. В `src/main/webapp/js/app.js` укажите локальный backend:
-   - вместо `const host = "http://31.56.208.168"`
-   - например: `const host = "http://localhost:8080/CurrencyExchangeJB"`
+4. Фронт автоматически определяет адрес бэкенда через window.location.origin:
+   - `const host = `${window.location.origin}/CurrencyExchangeJB``
 5. Разверните `target/CurrencyExchangeJB.war` в локальный Tomcat и запустите его.
 6. Быстрая проверка:
    - `/currencies`

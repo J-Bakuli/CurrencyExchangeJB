@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const host = "http://31.56.208.168"
+    const host = `${window.location.origin}/CurrencyExchangeJB`
 
     function showApiErrorToast(jqXHR) {
         let errorMessage = "An unknown error occurred";
