@@ -41,6 +41,7 @@ build/
 # Tools and local scripts
 db-tools.sh
 deploy.sh
+download-db-from-server.sh
 README-tools.md
 currency-exchange-app.tar
 
@@ -71,6 +72,9 @@ src/main/resources/db/currency_exchange.db
 *.jar
 *.war
 *.ear
+*.db
+*.db-shm
+*.db-wal
 
 # OS generated files
 Thumbs.db
