@@ -1,7 +1,9 @@
 package com.jb.currencyexchange.dao;
 
 import com.jb.currencyexchange.db.DataSourceConnectionProvider;
-import com.jb.currencyexchange.exception.notfound.CurrencyNotFoundException;
+import com.jb.currencyexchange.exception.DatabaseException;
+import com.jb.currencyexchange.exception.NotFoundException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +44,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
         } catch (SQLException e) {
             log.error("Error creating currency: id={}, name={}, code={},: {}", currency.getId(), currency.getName(),
                     currency.getCode(), e.getMessage(), e);
-            throw new RuntimeException("Failed to create currency id={}" + currency.getId(), e);
+            throw new DatabaseException("Failed to create currency id={}" + currency.getId(), e);
         }
     }
 
@@ -58,7 +60,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
             return currencies;
         } catch (SQLException e) {
             log.error("Error executing query: {}", SELECT_ALL, e);
-            throw new RuntimeException("Error executing query: " + SELECT_ALL, e);
+            throw new DatabaseException("Error executing query: " + SELECT_ALL, e);
         }
     }
 
@@ -72,7 +74,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
         CurrencyValidation.validate(currency);
         log.debug("Updating currency with ID: {}, code: {}", currency.getId(), currency.getCode());
         if (currency.getId() <= 0) {
-            throw new IllegalArgumentException("Currency ID must be positive for update");
+            throw new ValidationException("Currency ID must be positive for update");
         }
         try (Connection connection = DataSourceConnectionProvider.getConnection();
              PreparedStatement ps = connection.prepareStatement(UPDATE)) {
@@ -82,12 +84,12 @@ public class JdbcCurrencyDao implements CurrencyDao {
             int rows = ps.executeUpdate();
             if (rows == 0) {
                 log.warn("No currency found with ID {} for update, code: {}", currency.getId(), currency.getCode());
-                throw new CurrencyNotFoundException(null, currency.getCode(), List.of(currency.getCode()));
+                throw new NotFoundException(currency.getCode());
             }
             return currency;
         } catch (SQLException e) {
             log.error("Error updating currency with ID {}: {}", currency.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to update currency: " + currency.getId(), e);
+            throw new DatabaseException("Failed to update currency: " + currency.getId(), e);
         }
     }
 
@@ -117,7 +119,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
             return rs.next() ? Optional.of(rs.getLong("id")) : Optional.empty();
         } catch (SQLException e) {
             log.error("Error finding currency ID for code={}: {}", code, e.getMessage(), e);
-            throw new RuntimeException("Failed to find currency ID: " + code, e);
+            throw new DatabaseException("Failed to find currency ID: " + code, e);
         }
     }
 
@@ -129,7 +131,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
             } else if (paramValue instanceof String) {
                 ps.setString(1, (String) paramValue);
             } else {
-                throw new IllegalArgumentException("Unsupported type: " + paramValue.getClass());
+                throw new ValidationException("Unsupported type: " + paramValue.getClass());
             }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -138,7 +140,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
             return Optional.empty();
         } catch (SQLException e) {
             log.error("Error executing query: {}, param: {}", sql, paramValue, e);
-            throw new RuntimeException("Error executing query: " + sql, e);
+            throw new DatabaseException("Error executing query: " + sql, e);
         }
     }
 
