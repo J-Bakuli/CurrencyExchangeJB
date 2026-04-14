@@ -23,12 +23,3 @@ CREATE INDEX idx_exchange_rate_base_id ON exchange_rate(base_currency_id);
 CREATE INDEX idx_exchange_rate_target_id ON exchange_rate(target_currency_id);
 
 CREATE UNIQUE INDEX idx_currency_code_unique ON currency(code COLLATE NOCASE);
-
-INSERT INTO currency (name, code, sign) VALUES
-('US Dollar', 'USD', '$'),
-('Euro', 'EUR', '€'),
-('Japanese Yen', 'JPY', '¥');
-
-INSERT INTO exchange_rate (base_currency_id, target_currency_id, rate) VALUES
-(1, 2, 0.92),
-(1, 3, 140.5);
