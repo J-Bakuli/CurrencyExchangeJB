@@ -39,11 +39,8 @@ bin/
 build/
 
 # Tools and local scripts
-db-tools.sh
-deploy.sh
-download-db-from-server.sh
+*.sh
 README-tools.md
-currency-exchange-app.tar
 
 # Docker
 .dockerignore
