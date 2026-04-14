@@ -22,11 +22,11 @@ public class ExceptionMapper {
             log.warn("Mapped {} to DATA_IS_INVALID (400): {}", e.getClass().getSimpleName(), e.getMessage());
             return ExceptionMessage.DATA_IS_INVALID;
         } else if (e instanceof NullPointerException) {
-            log.warn("NullPointerException occurred — check null safety in business logic");
-            log.warn("Mapped {} to DATA_IS_INVALID (400): {}", e.getClass().getSimpleName(), e.getMessage());
-            return ExceptionMessage.DATA_IS_INVALID;
+            log.error("NullPointerException occurred — check null safety in business logic");
+            log.error("Mapped {} to INTERNAL_ERROR (500): {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            return ExceptionMessage.INTERNAL_ERROR;
         } else if (e instanceof DatabaseException) {
-            log.warn("Mapped {} to INTERNAL_ERROR (500): {}", e.getClass().getSimpleName(), e.getMessage());
+            log.error("Mapped {} to INTERNAL_ERROR (500): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             return ExceptionMessage.INTERNAL_ERROR;
         } else {
             log.error("Unhandled exception type: {}", e.getClass().getSimpleName(), e);

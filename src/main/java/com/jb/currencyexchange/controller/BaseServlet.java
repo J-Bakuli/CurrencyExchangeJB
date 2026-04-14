@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -92,7 +91,7 @@ public abstract class BaseServlet extends HttpServlet {
                 errorMsg.getMessage());
         try {
             String responseMessage = resolveErrorMessage(e, errorMsg);
-            sendErrorResponse(resp, errorMsg.getCode(), responseMessage, errorMsg.getStatus(), resolveErrorDetails(e));
+            sendErrorResponse(resp, errorMsg.getCode(), responseMessage, errorMsg.getStatus(), null);
         } catch (Exception writeError) {
             log.error("Failed to send error response to client", writeError);
             try {
@@ -115,12 +114,5 @@ public abstract class BaseServlet extends HttpServlet {
         }
 
         return mappedError.getMessage();
-    }
-
-    private Map<String, Object> resolveErrorDetails(Exception e) {
-        if (e instanceof ValidationException) {
-            return new HashMap<>();
-        }
-        return null;
     }
 }
