@@ -5,15 +5,9 @@ import com.jb.currencyexchange.dao.ExchangeRateDao;
 import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.request.UpdateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
-import com.jb.currencyexchange.exception.BadRequestException;
-import com.jb.currencyexchange.exception.ExchangeRateRetrievalException;
-import com.jb.currencyexchange.exception.alreadyexists.CurrencyPairAlreadyExistsException;
-import com.jb.currencyexchange.exception.creation.ExchangeRateCreationException;
-import com.jb.currencyexchange.exception.notfound.CurrencyNotFoundException;
-import com.jb.currencyexchange.exception.notfound.NoDataFoundException;
-import com.jb.currencyexchange.exception.notfound.RateNotFoundException;
-import com.jb.currencyexchange.exception.update.ExchangeRateUpdateException;
-import com.jb.currencyexchange.exception.validation.ExchangeRateIntergityException;
+import com.jb.currencyexchange.exception.AlreadyExistsException;
+import com.jb.currencyexchange.exception.DatabaseException;
+import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.model.Currency;
@@ -59,7 +53,7 @@ public class ExchangeRateService {
         try {
             if (exchangeRateDao.existsByCurrencyPair(baseCode, targetCode)) {
                 log.warn("Currency pair {} already exists", pair);
-                throw new CurrencyPairAlreadyExistsException(baseCode, targetCode);
+                throw new AlreadyExistsException(String.format("Exchange rate for pair %s already exists", pair));
             }
 
             Optional<Currency> baseCurrencyOpt = currencyDao.getByCode(baseCode);
@@ -75,10 +69,8 @@ public class ExchangeRateService {
             }
 
             if (!missingCurrencies.isEmpty()) {
-                throw new CurrencyNotFoundException(
-                        baseCurrencyOpt.isEmpty() ? baseCode : null,
-                        targetCurrencyOpt.isEmpty() ? targetCode : null,
-                        missingCurrencies
+                throw new NotFoundException(
+                        String.format("Currency not found for codes: %s", String.join(", ", missingCurrencies))
                 );
             }
 
@@ -87,11 +79,11 @@ public class ExchangeRateService {
 
             if (baseCurrency.getCode() == null || baseCurrency.getCode().trim().isEmpty()) {
                 log.error("Base currency code is invalid (null or empty): {}", baseCurrency);
-                throw new CurrencyNotFoundException(baseCode, null, List.of(baseCode));
+                throw new NotFoundException(baseCode);
             }
             if (targetCurrency.getCode() == null || targetCurrency.getCode().trim().isEmpty()) {
                 log.error("Target currency code is invalid (null or empty): {}", targetCurrency);
-                throw new CurrencyNotFoundException(null, targetCode, List.of(targetCode));
+                throw new NotFoundException(targetCode);
             }
 
             ExchangeRate exchangeRate = mapper.toEntity(request);
@@ -111,19 +103,19 @@ public class ExchangeRateService {
 
             return mapper.toResponseDto(created);
 
-        } catch (CurrencyNotFoundException e) {
+        } catch (NotFoundException e) {
             log.warn("Currency not found for pair {}: {}", pair, e.getMessage());
             throw e;
-        } catch (CurrencyPairAlreadyExistsException e) {
+        } catch (AlreadyExistsException e) {
             log.warn("Currency pair already exists for pair {}: {}", pair, e.getMessage());
             throw e;
-        } catch (ExchangeRateCreationException e) {
+        } catch (DatabaseException e) {
             log.error("Failed to create exchange rate for pair {}: {}", pair, e.getMessage(), e);
             throw e;
         } catch (RuntimeException e) {
             log.error("Unexpected error while creating exchange rate for pair {}: {}",
                     pair, e.getMessage(), e);
-            throw new ExchangeRateCreationException(
+            throw new DatabaseException(
                     String.format("Unexpected error creating exchange rate for pair %s", pair), e
             );
         }
@@ -138,7 +130,7 @@ public class ExchangeRateService {
             Optional<ExchangeRate> rateOpt = exchangeRateDao.getByCurrencyCodes(baseCode, targetCode);
             if (rateOpt.isEmpty()) {
                 log.warn("Exchange rate not found for pair {}", pair);
-                throw new RateNotFoundException("Rate not found for pair " + pair);
+                throw new NotFoundException("Rate not found for pair " + pair);
             }
             currencyBusinessValidation.validateCodePresence(baseCode);
             currencyBusinessValidation.validateCodePresence(targetCode);
@@ -147,19 +139,16 @@ public class ExchangeRateService {
             ExchangeRateValidation.validate(rate);
             log.debug("Found exchange rate for {}→{}: {}", baseCode, targetCode, rate.getRate());
             return mapper.toResponseDto(rate);
-        } catch (CurrencyNotFoundException e) {
-            log.warn("Currency not found: {}", e.getMessage());
-            throw e;
-        } catch (RateNotFoundException e) {
-            log.warn("Rate not found: {}", e.getMessage());
+        } catch (NotFoundException e) {
+            log.warn("Not found: {}", e.getMessage());
             throw e;
         } catch (ValidationException e) {
-            log.error("Invalid exchange rate in DB for pair {}: {}", pair, e.getMessage());
-            throw new ExchangeRateIntergityException(
+            log.warn("Invalid exchange rate in DB for pair {}: {}", pair, e.getMessage());
+            throw new ValidationException(
                     String.format("Corrupted data for pair %s: %s", pair, e.getMessage()), e);
         } catch (RuntimeException e) {
             log.error("Unexpected error fetching rate for pair {}: {}", pair, e.getMessage(), e);
-            throw new ExchangeRateRetrievalException(
+            throw new DatabaseException(
                     String.format("Failed to retrieve rate for %s/%s", baseCode, targetCode), e);
         }
     }
@@ -182,23 +171,19 @@ public class ExchangeRateService {
             CurrencyValidation.validateCurrencyCodes(baseCode, targetCode);
 
             Currency baseCurrency = currencyDao.getByCode(baseCode)
-                    .orElseThrow(() -> new CurrencyNotFoundException(
-                            baseCode,
-                            null,
-                            List.of(baseCode)
+                    .orElseThrow(() -> new NotFoundException(
+                            baseCode
                     ));
             Currency targetCurrency = currencyDao.getByCode(targetCode)
-                    .orElseThrow(() -> new CurrencyNotFoundException(
-                            null,
-                            targetCode,
-                            List.of(targetCode)
+                    .orElseThrow(() -> new NotFoundException(
+                            targetCode
                     ));
 
             Optional<ExchangeRate> existingRate = exchangeRateDao.getByCurrencyCodes(baseCode, targetCode);
             if (existingRate.isEmpty()) {
                 log.warn("Exchange rate not found for pair {} (base ID: {}, target ID: {})",
                         pair, baseCurrency.getId(), targetCurrency.getId());
-                throw new NoDataFoundException(
+                throw new NotFoundException(
                         String.format("Exchange rate not found for currency pair: %s-%s", baseCode, targetCode)
                 );
             }
@@ -214,18 +199,15 @@ public class ExchangeRateService {
                     updatedRate.getRate(), updatedRate.getId());
 
             return mapper.toResponseDto(updatedRate);
-        } catch (CurrencyNotFoundException e) {
-            log.error("Currency not found for pair {}: {}", pair, e.getMessage());
-            throw e;
-        } catch (NoDataFoundException e) {
-            log.warn("Exchange rate not found for update: pair {}", pair);
+        } catch (NotFoundException e) {
+            log.warn("Not found for pair {}: {}", pair, e.getMessage());
             throw e;
         } catch (ValidationException e) {
-            log.error("Validation failed for exchange rate update (pair {}): {}", pair, e.getMessage());
-            throw new BadRequestException("Invalid exchange rate data: " + e.getMessage(), e);
+            log.warn("Validation failed for exchange rate update (pair {}): {}", pair, e.getMessage());
+            throw new ValidationException("Invalid exchange rate data: " + e.getMessage(), e);
         } catch (RuntimeException e) {
             log.error("Unexpected error while updating exchange rate pair {}: {}", pair, e.getMessage(), e);
-            throw new ExchangeRateUpdateException(
+            throw new DatabaseException(
                     String.format("Failed to update exchange rate for currency pair %s", pair), e
             );
         }
