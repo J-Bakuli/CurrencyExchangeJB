@@ -6,7 +6,7 @@ import com.jb.currencyexchange.dao.JdbcCurrencyDao;
 import com.jb.currencyexchange.dao.JdbcExchangeRateDao;
 import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
-import com.jb.currencyexchange.exception.BadRequestException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.parser.ExchangeRateRequestParser;
 import com.jb.currencyexchange.parser.ParseResult;
@@ -65,9 +65,8 @@ public class ExchangeRatesServlet extends BaseServlet {
             ParseResult<CreateExchangeRateRequestDto> parseResult = ExchangeRateRequestParser.parseCreateRequest(req);
             if (!parseResult.isSuccess()) {
                 log.warn("Failed to parse request: {}", parseResult.getErrorMessage());
-                throw new BadRequestException(
-                        parseResult.getErrorMessage(),
-                        java.util.Map.of("fields", parseResult.getMissingFields())
+                throw new ValidationException(
+                        parseResult.getErrorMessage()
                 );
             }
             CreateExchangeRateRequestDto dto = parseResult.getData();

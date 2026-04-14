@@ -2,8 +2,8 @@ package com.jb.currencyexchange.controller;
 
 import com.jb.currencyexchange.dao.JdbcCurrencyDao;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
-import com.jb.currencyexchange.exception.BadRequestException;
-import com.jb.currencyexchange.exception.notfound.CurrencyNotFoundException;
+import com.jb.currencyexchange.exception.NotFoundException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.service.CurrencyService;
 import com.jb.currencyexchange.util.PathUtils;
@@ -12,8 +12,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @WebServlet("/currency/*")
 @Slf4j
@@ -39,13 +37,13 @@ public class CurrencyServlet extends BaseServlet {
             String code = PathUtils.extractCurrencyCode(req);
             log.info("GET /currency/{}", code);
             if (code == null || code.trim().isEmpty()) {
-                throw new BadRequestException(
+                throw new ValidationException(
                         "Currency code is missing. Expected format: /currency/{CODE} (3 characters)"
                 );
             }
             CurrencyResponseDto currency = currencyService.getByCode(code);
             if (currency == null) {
-                throw new CurrencyNotFoundException(code, null, List.of(code));
+                throw new NotFoundException(code);
             }
             sendSuccessResponse(resp, currency);
         } catch (Exception e) {

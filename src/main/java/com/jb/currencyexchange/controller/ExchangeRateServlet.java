@@ -6,7 +6,7 @@ import com.jb.currencyexchange.dao.JdbcCurrencyDao;
 import com.jb.currencyexchange.dao.JdbcExchangeRateDao;
 import com.jb.currencyexchange.dto.request.UpdateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
-import com.jb.currencyexchange.exception.BadRequestException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.parser.ExchangeRateRequestParser;
 import com.jb.currencyexchange.parser.ParseResult;
@@ -54,7 +54,7 @@ public class ExchangeRateServlet extends BaseServlet {
         try {
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.trim().isEmpty()) {
-                throw new BadRequestException("Currency pair is required");
+                throw new ValidationException("Currency pair is required");
             }
             String normalizedPath = pathInfo.replaceAll("^/+|/+$", "");
             req.setAttribute("normalizedPath", normalizedPath);
@@ -75,9 +75,8 @@ public class ExchangeRateServlet extends BaseServlet {
             log.info("Handling PATCH /exchangeRate request for path: {}", req.getPathInfo());
             ParseResult<UpdateExchangeRateRequestDto> parseResult = ExchangeRateRequestParser.parseUpdateRequest(req);
             if (!parseResult.isSuccess()) {
-                throw new BadRequestException(
-                        parseResult.getErrorMessage(),
-                        java.util.Map.of("fields", parseResult.getMissingFields())
+                throw new ValidationException(
+                        parseResult.getErrorMessage()
                 );
             }
             UpdateExchangeRateRequestDto dto = parseResult.getData();

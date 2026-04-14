@@ -1,6 +1,6 @@
 package com.jb.currencyexchange.util;
 
-import com.jb.currencyexchange.exception.BadRequestException;
+import com.jb.currencyexchange.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public final class PathUtils {
         log.debug("Raw pathInfo: {}", pathInfo);
 
         if (pathInfo == null || pathInfo.isEmpty()) {
-            throw new BadRequestException("Path info is missing");
+            throw new ValidationException("Path info is missing");
         }
 
         pathInfo = pathInfo.replaceAll("^/+", "");
@@ -41,7 +41,7 @@ public final class PathUtils {
 
         if (pathInfo.length() != 6) {
             log.warn("Currency pair length is not 6: {}", pathInfo);
-            throw new BadRequestException("Currency pair must be 6 characters long");
+            throw new ValidationException("Currency pair must be 6 characters long");
         }
 
         String baseCode = pathInfo.substring(0, 3);

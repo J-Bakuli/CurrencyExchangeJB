@@ -1,9 +1,7 @@
 package com.jb.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jb.currencyexchange.exception.BadRequestException;
 import com.jb.currencyexchange.exception.ExceptionMessage;
-import com.jb.currencyexchange.exception.json.JsonSerializationException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExceptionMapper;
 import com.jb.currencyexchange.util.JsonUtils;
@@ -13,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
@@ -31,7 +29,7 @@ public abstract class BaseServlet extends HttpServlet {
             String json = JsonUtils.writeJson(payload);
             writer.write(json);
             writer.flush();
-        } catch (JsonSerializationException e) {
+        } catch (RuntimeException e) {
             log.error("Failed to serialize JSON response", e);
             sendErrorResponse(resp, "Failed to serialize response", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -112,7 +110,7 @@ public abstract class BaseServlet extends HttpServlet {
             return mappedError.getMessage();
         }
 
-        if (e instanceof ValidationException || e instanceof IllegalArgumentException || e instanceof BadRequestException) {
+        if (e instanceof ValidationException || e instanceof IllegalArgumentException) {
             return detailedMessage;
         }
 
@@ -120,9 +118,6 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     private Map<String, Object> resolveErrorDetails(Exception e) {
-        if (e instanceof BadRequestException badRequestException) {
-            return badRequestException.getDetails();
-        }
         if (e instanceof ValidationException) {
             return new HashMap<>();
         }

@@ -1,6 +1,6 @@
 package com.jb.currencyexchange.util;
 
-import com.jb.currencyexchange.exception.BadRequestException;
+import com.jb.currencyexchange.exception.ValidationException;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -77,16 +77,16 @@ public final class CommonValidationUtils {
         validateCurrencyCode(toCode, "to");
 
         if (amount == null) {
-            throw new BadRequestException("Amount cannot be null");
+            throw new ValidationException("Amount cannot be null");
         }
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new BadRequestException("Amount must be non-negative");
+            throw new ValidationException("Amount must be non-negative");
         }
     }
 
     private static void validateCurrencyCode(String code, String paramName) {
         if (code == null || code.trim().isEmpty()) {
-            throw new BadRequestException("Currency '" + paramName + "' code cannot be null or empty");
+            throw new ValidationException("Currency '" + paramName + "' code cannot be null or empty");
         }
     }
 
@@ -103,7 +103,7 @@ public final class CommonValidationUtils {
 
     public static void throwValidationExceptionIfErrors(List<String> errors) {
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed: " + String.join("; ", errors));
+            throw new ValidationException("Validation failed: " + String.join("; ", errors));
         }
     }
 

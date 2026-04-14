@@ -2,7 +2,6 @@ package com.jb.currencyexchange.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jb.currencyexchange.exception.json.JsonSerializationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,11 +22,11 @@ public final class JsonUtils {
         } catch (JsonProcessingException e) {
             String errorMsg = "Failed to serialize object to JSON (type: %s)";
             log.error(String.format(errorMsg, obj.getClass().getSimpleName()));
-            throw new JsonSerializationException(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
         } catch (Exception e) {
             String errorMsg = "Unexpected error during JSON serialization";
             log.error(errorMsg, e);
-            throw new JsonSerializationException(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
         }
     }
 }
