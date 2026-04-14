@@ -4,7 +4,8 @@ import com.jb.currencyexchange.dao.CurrencyDao;
 import com.jb.currencyexchange.dao.ExchangeRateDao;
 import com.jb.currencyexchange.dto.ExchangeResultDto;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
-import com.jb.currencyexchange.exception.notfound.PairNotFoundException;
+import com.jb.currencyexchange.exception.NotFoundException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
 import com.jb.currencyexchange.util.CommonValidationUtils;
@@ -62,17 +63,17 @@ public class ExchangeRateCalculatorService {
                 return createResultDto(from, to, rate, amount);
             }
         }
-        throw new PairNotFoundException(String.format("No exchange rate found for %s→%s", fromCode, toCode));
+        throw new NotFoundException(String.format("No exchange rate found for %s→%s", fromCode, toCode));
     }
 
     private Currency getCurrencyOrThrow(String code) {
         return currencyDao.getByCode(code)
-                .orElseThrow(() -> new PairNotFoundException("Currency " + code + " not found"));
+                .orElseThrow(() -> new NotFoundException("Currency " + code + " not found"));
     }
 
     private BigDecimal calculateInverseRate(BigDecimal rate) {
         if (rate.compareTo(BigDecimal.ZERO) == 0) {
-            throw new ArithmeticException("Cannot calculate inverse of zero rate");
+            throw new ValidationException("Cannot calculate inverse of zero rate");
         }
         return BigDecimal.ONE.divide(rate, ROUND_SCALE, RoundingMode.HALF_UP);
     }
