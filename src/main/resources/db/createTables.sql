@@ -1,7 +1,7 @@
 CREATE TABLE currency (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    code TEXT NOT NULL UNIQUE,
+    code TEXT NOT NULL,
     sign TEXT NOT NULL
 );
 
@@ -10,8 +10,6 @@ CREATE TABLE exchange_rate (
     base_currency_id INTEGER NOT NULL,
     target_currency_id INTEGER NOT NULL,
     rate NUMERIC(10, 6) NOT NULL,
-
-    UNIQUE (base_currency_id, target_currency_id),
 
     CONSTRAINT uc_exchange_pair UNIQUE (base_currency_id, target_currency_id),
 
