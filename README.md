@@ -39,6 +39,8 @@ mvn clean package
 
 ## Локальный запуск
 
+Tomcat + WAR
+
 1. Соберите проект:
    ```bash
    mvn clean package
@@ -57,6 +59,8 @@ mvn clean package
    - `/exchange?from=USD&to=EUR&amount=10`
 
 ## Публичный запуск
+
+Docker + nginx (reverse proxy, port hiding, unified routing)
 
 1. Соберите WAR:
    ```bash
