@@ -4,6 +4,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 
 public class ExchangeRateIntergityException extends ValidationException {
     public ExchangeRateIntergityException(String message, Throwable cause) {
-        super(message, String.valueOf(cause));
+        super(message, cause);
     }
 }

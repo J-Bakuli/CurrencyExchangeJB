@@ -123,12 +123,8 @@ public abstract class BaseServlet extends HttpServlet {
         if (e instanceof BadRequestException badRequestException) {
             return badRequestException.getDetails();
         }
-        if (e instanceof ValidationException validationException) {
-            Map<String, Object> details = new HashMap<>();
-            if (validationException.getField() != null && !validationException.getField().isBlank()) {
-                details.put("field", validationException.getField());
-            }
-            return details;
+        if (e instanceof ValidationException) {
+            return new HashMap<>();
         }
         return null;
     }
