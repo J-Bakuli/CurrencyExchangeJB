@@ -30,6 +30,7 @@ public class DataSourceConnectionProvider {
             HIKARI_CONFIG.addDataSourceProperty("synchronous", "NORMAL");
 
             HIKARI_DATA_SOURCE = new HikariDataSource(HIKARI_CONFIG);
+            initializeDatabase();
             registerShutdownHook();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load datasource properties", e);
@@ -47,6 +48,14 @@ public class DataSourceConnectionProvider {
             log.warn("Failed to set foreign keys ON, continuing with connection", e);
         }
         return connection;
+    }
+
+    private static void initializeDatabase() {
+        try (Connection conn = getConnection()) {
+            DatabaseInitializer.init(conn);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to initialize database", e);
+        }
     }
 
     private static void registerShutdownHook() {
