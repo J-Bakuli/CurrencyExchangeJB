@@ -3,9 +3,10 @@ package com.jb.currencyexchange.service;
 import com.jb.currencyexchange.dao.CurrencyDao;
 import com.jb.currencyexchange.dto.request.CreateCurrencyRequestDto;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
-import com.jb.currencyexchange.exception.alreadyexists.CurrencyAlreadyExistsException;
-import com.jb.currencyexchange.exception.creation.CurrencyCreationFailedException;
-import com.jb.currencyexchange.exception.notfound.CurrencyNotFoundException;
+import com.jb.currencyexchange.exception.AlreadyExistsException;
+import com.jb.currencyexchange.exception.DatabaseException;
+import com.jb.currencyexchange.exception.NotFoundException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
@@ -52,18 +53,18 @@ public class CurrencyService {
                     savedCurrency.getId(), savedCurrency.getName(), savedCurrency.getCode());
 
             return mapper.toResponseDto(savedCurrency);
-        } catch (CurrencyAlreadyExistsException e) {
+        } catch (AlreadyExistsException e) {
             log.warn("Attempt to create duplicate currency with code={}", requestDto.code());
             throw e;
         } catch (RuntimeException e) {
             if (e.getCause() instanceof SQLException sqlEx && isUniqueConstraintViolation(sqlEx)) {
                 log.warn("Duplicate currency code detected at DB level: {}", requestDto.code(), e);
-                throw new CurrencyAlreadyExistsException(
+                throw new AlreadyExistsException(
                         String.format("Currency with code '%s' already exists", requestDto.code()), e);
             } else {
                 log.error("Failed to create currency with code={}: {}",
                         requestDto.code(), e.getMessage(), e);
-                throw new CurrencyCreationFailedException(
+                throw new DatabaseException(
                         String.format("Failed to create currency with code=%s", requestDto.code()), e);
             }
         }
@@ -72,16 +73,14 @@ public class CurrencyService {
     public CurrencyResponseDto getByCode(String code) {
         log.info("Currency to get by code: code={}", code);
         if (code == null || code.trim().isEmpty()) {
-            throw new IllegalArgumentException("Currency code cannot be null or empty");
+            throw new ValidationException("Currency code cannot be null or empty");
         }
         return currencyDao.getByCode(code)
                 .map(mapper::toResponseDto)
                 .orElseThrow(() -> {
                     log.warn("Currency not found for code: {}", code);
-                    return new CurrencyNotFoundException(
-                            null,
-                            String.format("Currency is not found by code: code=%s", code),
-                            List.of(code));
+                    return new NotFoundException(
+                            String.format("Currency is not found by code: code=%s", code));
                 });
     }
 }
