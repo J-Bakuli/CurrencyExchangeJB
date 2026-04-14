@@ -1,6 +1,6 @@
 package com.jb.currencyexchange.validation.business;
 
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

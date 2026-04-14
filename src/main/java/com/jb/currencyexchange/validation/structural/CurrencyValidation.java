@@ -2,7 +2,7 @@ package com.jb.currencyexchange.validation.structural;
 
 import com.jb.currencyexchange.exception.EmptyFormFieldException;
 import com.jb.currencyexchange.exception.validation.CurrencyValidationException;
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.util.CommonValidationUtils;
 
@@ -63,7 +63,7 @@ public class CurrencyValidation {
         } else if (sign.length() > SIGN_MAX_LENGTH) {
             throw new ValidationException(String.format("Sign must not exceed %d characters", SIGN_MAX_LENGTH));
         } else if (!SIGN_PATTERN.matcher(sign).matches()) {
-            throw new ValidationException("sign", "Sign must contain only letters or currency symbols (no spaces or punctuation)");
+            throw new ValidationException("Sign must contain only letters or currency symbols (no spaces or punctuation)");
         }
     }
 

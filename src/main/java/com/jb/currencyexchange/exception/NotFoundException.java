@@ -1,4 +1,4 @@
-package com.jb.currencyexchange.exception.notfound;
+package com.jb.currencyexchange.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

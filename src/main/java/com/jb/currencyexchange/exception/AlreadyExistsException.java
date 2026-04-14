@@ -1,4 +1,4 @@
-package com.jb.currencyexchange.exception.alreadyexists;
+package com.jb.currencyexchange.exception;
 
 public class AlreadyExistsException extends RuntimeException{
     public AlreadyExistsException(String message) {

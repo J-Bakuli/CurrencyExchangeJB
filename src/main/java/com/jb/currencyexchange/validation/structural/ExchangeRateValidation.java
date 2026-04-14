@@ -1,6 +1,6 @@
 package com.jb.currencyexchange.validation.structural;
 
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
 import com.jb.currencyexchange.util.CommonValidationUtils;

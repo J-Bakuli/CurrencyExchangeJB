@@ -4,13 +4,13 @@ import com.jb.currencyexchange.exception.BadRequestException;
 import com.jb.currencyexchange.exception.EmptyFormFieldException;
 import com.jb.currencyexchange.exception.ExceptionMessage;
 import com.jb.currencyexchange.exception.ExchangeRateRetrievalException;
-import com.jb.currencyexchange.exception.alreadyexists.AlreadyExistsException;
+import com.jb.currencyexchange.exception.AlreadyExistsException;
 import com.jb.currencyexchange.exception.alreadyexists.CurrencyPairAlreadyExistsException;
 import com.jb.currencyexchange.exception.notfound.CurrencyNotFoundException;
 import com.jb.currencyexchange.exception.notfound.PairNotFoundException;
 import com.jb.currencyexchange.exception.notfound.RateNotFoundException;
 import com.jb.currencyexchange.exception.validation.ExchangeRateIntergityException;
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -14,7 +14,7 @@ import com.jb.currencyexchange.exception.notfound.NoDataFoundException;
 import com.jb.currencyexchange.exception.notfound.RateNotFoundException;
 import com.jb.currencyexchange.exception.update.ExchangeRateUpdateException;
 import com.jb.currencyexchange.exception.validation.ExchangeRateIntergityException;
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;

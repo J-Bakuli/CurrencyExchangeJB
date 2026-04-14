@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jb.currencyexchange.exception.BadRequestException;
 import com.jb.currencyexchange.exception.ExceptionMessage;
 import com.jb.currencyexchange.exception.json.JsonSerializationException;
-import com.jb.currencyexchange.exception.validation.ValidationException;
+import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExceptionMapper;
 import com.jb.currencyexchange.util.JsonUtils;
 import jakarta.servlet.http.HttpServlet;
