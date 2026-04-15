@@ -51,11 +51,6 @@ public class ExchangeRateService {
         log.info("Creating exchange rate: {} → {} = {}", baseCode, targetCode, rate);
 
         try {
-            if (exchangeRateDao.existsByCurrencyPair(baseCode, targetCode)) {
-                log.warn("Currency pair {} already exists", pair);
-                throw new AlreadyExistsException(String.format("Exchange rate for pair %s already exists", pair));
-            }
-
             Optional<Currency> baseCurrencyOpt = currencyDao.getByCode(baseCode);
             Optional<Currency> targetCurrencyOpt = currencyDao.getByCode(targetCode);
 

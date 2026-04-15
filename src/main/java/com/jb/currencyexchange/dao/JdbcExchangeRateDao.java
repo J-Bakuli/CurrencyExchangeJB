@@ -30,9 +30,6 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " +
             "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " +
             "JOIN currency c2 ON er.target_currency_id = c2.id " + "WHERE c1.code = ? AND c2.code = ?";
-    private static final String EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES = "SELECT 1 FROM exchange_rate er " +
-            "JOIN currency bc ON er.base_currency_id = bc.id " + "JOIN currency tc ON er.target_currency_id = tc.id " +
-            "WHERE bc.code = ? AND tc.code = ?";
     private static final String SELECT_ALL_WITH_JOIN = "SELECT er.id, er.rate, " +
             "c1.id as base_currency_id, c1.name as base_name, c1.code as base_code, c1.sign as base_sign, " +
             "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " +
@@ -55,18 +52,7 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             ps.setInt(1, baseCurrencyId);
             ps.setInt(2, targetCurrencyId);
             ps.setBigDecimal(3, rate.getRate());
-            int rows = ps.executeUpdate();
-            if (rows == 0) {
-                Optional<ExchangeRate> existingRate = getByCurrencyCodes(baseCurrency.getCode(), targetCurrency.getCode());
-                if (existingRate.isPresent()) {
-                    throw new AlreadyExistsException(
-                            String.format("Exchange rate already exists for baseCode=%s, targetCode=%s",
-                                    baseCurrency.getCode(), targetCurrency.getCode())
-                    );
-                } else {
-                    throw new DatabaseException("No rows affected during exchange rate creation");
-                }
-            }
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -157,21 +143,6 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
                 throw new DatabaseException("Error mapping ResultSet to ExchangeRate", e);
             }
         });
-    }
-
-
-    @Override
-    public boolean existsByCurrencyPair(String baseCode, String targetCode) {
-        try (Connection connection = DataSourceConnectionProvider.getConnection();
-             PreparedStatement ps = connection.prepareStatement(EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES)) {
-            ps.setString(1, baseCode.toUpperCase());
-            ps.setString(2, targetCode.toUpperCase());
-            ResultSet rs = ps.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            log.error("Error checking existence of currency pair {}-{}: {}", baseCode, targetCode, e.getMessage(), e);
-            throw new DatabaseException("Failed to check currency pair existence", e);
-        }
     }
 
     private <T> Optional<T> executeQuery(String sql, Object[] paramValues, Function<ResultSet, T> rowMapper) {
