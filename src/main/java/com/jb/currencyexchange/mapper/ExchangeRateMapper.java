@@ -12,12 +12,12 @@ import org.mapstruct.factory.Mappers;
 public interface ExchangeRateMapper {
     ExchangeRateMapper INSTANCE = Mappers.getMapper(ExchangeRateMapper.class);
 
-    @Mapping(target = "baseCode", expression = "java(toCurrency(dto.baseCode()))")
-    @Mapping(target = "targetCode", expression = "java(toCurrency(dto.targetCode()))")
+    @Mapping(target = "baseCurrency", expression = "java(toCurrency(dto.baseCode()))")
+    @Mapping(target = "targetCurrency", expression = "java(toCurrency(dto.targetCode()))")
     ExchangeRate toEntity(CreateExchangeRateRequestDto dto);
 
-    @Mapping(target = "baseCurrency", source = "baseCode")
-    @Mapping(target = "targetCurrency", source = "targetCode")
+    @Mapping(target = "baseCurrency", source = "baseCurrency")
+    @Mapping(target = "targetCurrency", source = "targetCurrency")
     ExchangeRateResponseDto toResponseDto(ExchangeRate entity);
 
     default Currency toCurrency(String code) {

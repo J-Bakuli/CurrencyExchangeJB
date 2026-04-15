@@ -37,8 +37,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
     @Override
     public ExchangeRate create(ExchangeRate rate) {
         ExchangeRateValidation.validate(rate);
-        Currency baseCurrency = rate.getBaseCode();
-        Currency targetCurrency = rate.getTargetCode();
+        Currency baseCurrency = rate.getBaseCurrency();
+        Currency targetCurrency = rate.getTargetCurrency();
         log.debug("Creating exchange rate: {} -> {} = {}", baseCurrency.getCode(), targetCurrency.getCode(), rate.getRate());
         try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(CREATE, new String[]{"id"})) {
             Integer baseCurrencyId = baseCurrency.getId();
@@ -69,7 +69,7 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             return rate;
         } catch (SQLException e) {
             if (isUniqueConstraintViolation(e)) {
-                log.warn("Currency pair already exists: {}-{}", rate.getBaseCode(), rate.getTargetCode());
+                log.warn("Currency pair already exists: {}-{}", rate.getBaseCurrency(), rate.getTargetCurrency());
                 throw new AlreadyExistsException(String.format("Exchange rate already exists for baseCode=%s, targetCode=%s", baseCurrency.getCode(), targetCurrency.getCode()));
             } else {
                 throw new DatabaseException("Failed to create exchange rate", e);
@@ -87,7 +87,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             while (rs.next()) {
                 count++;
                 ExchangeRate rate = createFrom(rs);
-                log.debug("Mapped exchange rate #{}: id={}, baseCode={}, targetCode={}, rate={}", count, rate.getId(), rate.getBaseCode().getCode(), rate.getTargetCode().getCode(), rate.getRate());
+                log.debug("Mapped exchange rate #{}: id={}, baseCode={}, targetCode={}, rate={}", count, rate.getId(),
+                        rate.getBaseCurrency().getCode(), rate.getTargetCurrency().getCode(), rate.getRate());
                 exchangeRates.add(rate);
             }
             log.info("Successfully fetched {} exchange rates", count);
@@ -101,8 +102,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
     @Override
     public ExchangeRate update(ExchangeRate rate) {
         ExchangeRateValidation.validate(rate);
-        Currency baseCurrency = rate.getBaseCode();
-        Currency targetCurrency = rate.getTargetCode();
+        Currency baseCurrency = rate.getBaseCurrency();
+        Currency targetCurrency = rate.getTargetCurrency();
         log.debug("Updating exchange rate: ID={}, {} -> {} = {}", rate.getId(), baseCurrency.getCode(), targetCurrency.getCode(), rate.getRate());
         if (rate.getId() <= 0) {
             throw new ValidationException("Exchange rate ID must be positive for update.");

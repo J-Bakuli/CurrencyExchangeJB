@@ -22,11 +22,11 @@ public class ExchangeRateMapperTest {
         ExchangeRate entity = mapper.toEntity(dto);
 
         assertNotNull(entity);
-        assertNotNull(entity.getBaseCode());
-        assertNotNull(entity.getTargetCode());
+        assertNotNull(entity.getBaseCurrency());
+        assertNotNull(entity.getTargetCurrency());
 
-        assertEquals("USD", entity.getBaseCode().getCode());
-        assertEquals("EUR", entity.getTargetCode().getCode());
+        assertEquals("USD", entity.getBaseCurrency().getCode());
+        assertEquals("EUR", entity.getTargetCurrency().getCode());
         assertEquals(BigDecimal.valueOf(0.85), entity.getRate());
         assertNull(entity.getId());
     }
@@ -38,8 +38,8 @@ public class ExchangeRateMapperTest {
 
         ExchangeRate entity = ExchangeRate.builder()
                 .id(1)
-                .baseCode(baseCurrency)
-                .targetCode(targetCurrency)
+                .baseCurrency(baseCurrency)
+                .targetCurrency(targetCurrency)
                 .rate(BigDecimal.valueOf(1.25))
                 .build();
 
@@ -71,11 +71,11 @@ public class ExchangeRateMapperTest {
         ExchangeRate entity = mapper.toEntity(dto);
 
         assertNotNull(entity);
-        assertNotNull(entity.getBaseCode());
-        assertNotNull(entity.getTargetCode());
+        assertNotNull(entity.getBaseCurrency());
+        assertNotNull(entity.getTargetCurrency());
 
-        assertEquals("", entity.getBaseCode().getCode());
-        assertEquals("", entity.getTargetCode().getCode());
+        assertEquals("", entity.getBaseCurrency().getCode());
+        assertEquals("", entity.getTargetCurrency().getCode());
         assertEquals(BigDecimal.ZERO, entity.getRate());
     }
 
@@ -86,16 +86,16 @@ public class ExchangeRateMapperTest {
         );
         ExchangeRate entity = mapper.toEntity(dto);
 
-        assertEquals("USD", entity.getBaseCode().getCode());
-        assertEquals("EUR", entity.getTargetCode().getCode());
+        assertEquals("USD", entity.getBaseCurrency().getCode());
+        assertEquals("EUR", entity.getTargetCurrency().getCode());
     }
 
     @Test
     public void testResponseDtoWithNullCurrencies() {
         ExchangeRate entity = ExchangeRate.builder()
                 .id(1)
-                .baseCode(null)
-                .targetCode(null)
+                .baseCurrency(null)
+                .targetCurrency(null)
                 .rate(BigDecimal.valueOf(1.0))
                 .build();
 

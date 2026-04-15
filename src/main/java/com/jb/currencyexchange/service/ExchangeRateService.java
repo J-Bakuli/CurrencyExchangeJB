@@ -87,15 +87,15 @@ public class ExchangeRateService {
             }
 
             ExchangeRate exchangeRate = mapper.toEntity(request);
-            exchangeRate.setBaseCode(baseCurrency);
-            exchangeRate.setTargetCode(targetCurrency);
+            exchangeRate.setBaseCurrency(baseCurrency);
+            exchangeRate.setTargetCurrency(targetCurrency);
 
             ExchangeRateValidation.validate(exchangeRate);
             ExchangeRate created = exchangeRateDao.create(exchangeRate);
 
             log.info("Successfully created exchange rate: {} → {} = {}, baseCurrencyCode={}, targetCurrencyCode={}",
-                    created.getBaseCode(),
-                    created.getTargetCode(),
+                    created.getBaseCurrency(),
+                    created.getTargetCurrency(),
                     created.getRate(),
                     baseCurrency.getCode(),
                     targetCurrency.getCode()
@@ -190,12 +190,12 @@ public class ExchangeRateService {
 
             ExchangeRate rateToUpdate = existingRate.get();
             rateToUpdate.setRate(request.rate());
-            rateToUpdate.setBaseCode(baseCurrency);
-            rateToUpdate.setTargetCode(targetCurrency);
+            rateToUpdate.setBaseCurrency(baseCurrency);
+            rateToUpdate.setTargetCurrency(targetCurrency);
 
             ExchangeRate updatedRate = exchangeRateDao.update(rateToUpdate);
             log.info("Successfully updated exchange rate: {}→{} = {} (ID: {})",
-                    updatedRate.getBaseCode(), updatedRate.getTargetCode(),
+                    updatedRate.getBaseCurrency(), updatedRate.getTargetCurrency(),
                     updatedRate.getRate(), updatedRate.getId());
 
             return mapper.toResponseDto(updatedRate);

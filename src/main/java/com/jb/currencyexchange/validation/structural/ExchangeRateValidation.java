@@ -35,8 +35,8 @@ public class ExchangeRateValidation {
             throw new ValidationException("ExchangeRate object cannot be null");
         }
 
-        Currency baseCurrency = rate.getBaseCode();
-        Currency targetCurrency = rate.getTargetCode();
+        Currency baseCurrency = rate.getBaseCurrency();
+        Currency targetCurrency = rate.getTargetCurrency();
         BigDecimal rateValue = rate.getRate();
 
         if (baseCurrency == null) {
