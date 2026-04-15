@@ -8,8 +8,6 @@ import com.jb.currencyexchange.dto.request.UpdateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
-import com.jb.currencyexchange.parser.ExchangeRateRequestParser;
-import com.jb.currencyexchange.parser.ParseResult;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import com.jb.currencyexchange.util.PathUtils;
 import com.jb.currencyexchange.validation.business.CurrencyBusinessValidation;
@@ -21,6 +19,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
 
 @WebServlet("/exchangeRate/*")
 @Slf4j
@@ -49,8 +49,8 @@ public class ExchangeRateServlet extends BaseServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        String baseCode = null;
-        String targetCode = null;
+        String baseCode;
+        String targetCode;
         try {
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.trim().isEmpty()) {
@@ -73,17 +73,10 @@ public class ExchangeRateServlet extends BaseServlet {
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         try {
             log.info("Handling PATCH /exchangeRate request for path: {}", req.getPathInfo());
-            ParseResult<UpdateExchangeRateRequestDto> parseResult = ExchangeRateRequestParser.parseUpdateRequest(req);
-            if (!parseResult.isSuccess()) {
-                throw new ValidationException(
-                        parseResult.getErrorMessage()
-                );
-            }
-            UpdateExchangeRateRequestDto dto = parseResult.getData();
+            UpdateExchangeRateRequestDto dto = parseUpdateRequest(req);
             InputSecurityValidation.validateExchangeRateWrite(dto.baseCode(), dto.targetCode());
             DtoValidation.validate(dto);
             ExchangeRateResponseDto updatedRate = exchangeRateService.update(dto);
-            resp.setStatus(HttpServletResponse.SC_OK);
             sendSuccessResponse(resp, updatedRate);
         } catch (Exception e) {
             handleException(resp, e);
@@ -93,5 +86,27 @@ public class ExchangeRateServlet extends BaseServlet {
     @Override
     public void destroy() {
         log.info("Destroying Servlet 'ExchangeRateServlet' — application is shutting down");
+    }
+
+    private UpdateExchangeRateRequestDto parseUpdateRequest(HttpServletRequest req) {
+        String baseCode;
+        String targetCode;
+        BigDecimal rate;
+        try {
+            String[] pair = PathUtils.extractCurrencyPair(req);
+            baseCode = pair[0];
+            targetCode = pair[1];
+            String rateStrParam = req.getParameter("rate");
+            if (rateStrParam == null || rateStrParam.trim().isEmpty()) {
+                log.warn("Rate is missing or blank.");
+                throw new ValidationException("Rate is required. It must be a valid decimal number.");
+            }
+            rate = new BigDecimal(rateStrParam.trim());
+        } catch (NumberFormatException e) {
+            log.warn("Rate must be a valid decimal number.");
+            throw new ValidationException("Rate must be a valid decimal number.");
+        }
+
+        return new UpdateExchangeRateRequestDto(baseCode, targetCode, rate);
     }
 }
