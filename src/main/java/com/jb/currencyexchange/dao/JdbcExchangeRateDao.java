@@ -23,16 +23,23 @@ import java.util.function.Function;
 
 @Slf4j
 public class JdbcExchangeRateDao implements ExchangeRateDao {
-    private static final String CREATE = "INSERT INTO exchange_rate (base_currency_id, target_currency_id, rate) " + "VALUES (?, ?, ?)";
-    private static final String SELECT_BY_CURRENCY_CODES = "SELECT er.id, er.rate, " + "c1.id as base_currency_id, c1.name as base_name, c1.code as base_code, c1.sign as base_sign, " + "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " + "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " + "JOIN currency c2 ON er.target_currency_id = c2.id " + "WHERE c1.code = ? AND c2.code = ?";
-    private static final String EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES = "SELECT 1 FROM exchange_rate er " + "JOIN currency bc ON er.base_currency_id = bc.id " + "JOIN currency tc ON er.target_currency_id = tc.id " + "WHERE bc.code = ? AND tc.code = ?";
-    private static final String SELECT_ALL_WITH_JOIN = "SELECT er.id, er.rate, " + "c1.id as base_currency_id, c1.name as base_name, c1.code as base_code, c1.sign as base_sign, " + "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " + "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " + "JOIN currency c2 ON er.target_currency_id = c2.id";
-    private static final String UPDATE = "UPDATE exchange_rate SET base_currency_id = ?, target_currency_id = ?, rate = ? " + "WHERE id = ?";
-    private final JdbcCurrencyDao currencyDao;
-
-    public JdbcExchangeRateDao() {
-        this.currencyDao = new JdbcCurrencyDao();
-    }
+    private static final String CREATE = "INSERT INTO exchange_rate (base_currency_id, target_currency_id, rate) " +
+            "VALUES (?, ?, ?)";
+    private static final String SELECT_BY_CURRENCY_CODES = "SELECT er.id, er.rate, " +
+            "c1.id as base_currency_id, c1.name as base_name, c1.code as base_code, c1.sign as base_sign, " +
+            "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " +
+            "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " +
+            "JOIN currency c2 ON er.target_currency_id = c2.id " + "WHERE c1.code = ? AND c2.code = ?";
+    private static final String EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES = "SELECT 1 FROM exchange_rate er " +
+            "JOIN currency bc ON er.base_currency_id = bc.id " + "JOIN currency tc ON er.target_currency_id = tc.id " +
+            "WHERE bc.code = ? AND tc.code = ?";
+    private static final String SELECT_ALL_WITH_JOIN = "SELECT er.id, er.rate, " +
+            "c1.id as base_currency_id, c1.name as base_name, c1.code as base_code, c1.sign as base_sign, " +
+            "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " +
+            "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " +
+            "JOIN currency c2 ON er.target_currency_id = c2.id";
+    private static final String UPDATE = "UPDATE exchange_rate SET base_currency_id = ?, target_currency_id = ?, " +
+            "rate = ? " + "WHERE id = ?";
 
     @Override
     public ExchangeRate create(ExchangeRate rate) {
@@ -40,7 +47,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         Currency baseCurrency = rate.getBaseCurrency();
         Currency targetCurrency = rate.getTargetCurrency();
         log.debug("Creating exchange rate: {} -> {} = {}", baseCurrency.getCode(), targetCurrency.getCode(), rate.getRate());
-        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(CREATE, new String[]{"id"})) {
+        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps =
+                connection.prepareStatement(CREATE, new String[]{"id"})) {
             Integer baseCurrencyId = baseCurrency.getId();
             Integer targetCurrencyId = targetCurrency.getId();
             validateCurrencyIds(baseCurrency, targetCurrency);
@@ -51,7 +59,10 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             if (rows == 0) {
                 Optional<ExchangeRate> existingRate = getByCurrencyCodes(baseCurrency.getCode(), targetCurrency.getCode());
                 if (existingRate.isPresent()) {
-                    throw new AlreadyExistsException(String.format("Exchange rate already exists for baseCode=%s, targetCode=%s", baseCurrency.getCode(), targetCurrency.getCode()));
+                    throw new AlreadyExistsException(
+                            String.format("Exchange rate already exists for baseCode=%s, targetCode=%s",
+                                    baseCurrency.getCode(), targetCurrency.getCode())
+                    );
                 } else {
                     throw new DatabaseException("No rows affected during exchange rate creation");
                 }
@@ -69,8 +80,11 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             return rate;
         } catch (SQLException e) {
             if (isUniqueConstraintViolation(e)) {
-                log.warn("Currency pair already exists: {}-{}", rate.getBaseCurrency(), rate.getTargetCurrency());
-                throw new AlreadyExistsException(String.format("Exchange rate already exists for baseCode=%s, targetCode=%s", baseCurrency.getCode(), targetCurrency.getCode()));
+                log.warn("Currency pair already exists: {}-{}",
+                        rate.getBaseCurrency().getCode(), rate.getTargetCurrency().getCode());
+                throw new AlreadyExistsException(
+                        String.format("Exchange rate already exists for baseCode=%s, targetCode=%s",
+                                baseCurrency.getCode(), targetCurrency.getCode()));
             } else {
                 throw new DatabaseException("Failed to create exchange rate", e);
             }
@@ -80,7 +94,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
     @Override
     public List<ExchangeRate> getAll() {
         log.debug("Executing getAll() - fetching all exchange rates with JOIN");
-        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(SELECT_ALL_WITH_JOIN)) {
+        try (Connection connection = DataSourceConnectionProvider.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_WITH_JOIN)) {
             ResultSet rs = ps.executeQuery();
             List<ExchangeRate> exchangeRates = new ArrayList<>();
             int count = 0;
@@ -104,11 +119,13 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         ExchangeRateValidation.validate(rate);
         Currency baseCurrency = rate.getBaseCurrency();
         Currency targetCurrency = rate.getTargetCurrency();
-        log.debug("Updating exchange rate: ID={}, {} -> {} = {}", rate.getId(), baseCurrency.getCode(), targetCurrency.getCode(), rate.getRate());
+        log.debug("Updating exchange rate: ID={}, {} -> {} = {}", rate.getId(), baseCurrency.getCode(),
+                targetCurrency.getCode(), rate.getRate());
         if (rate.getId() <= 0) {
             throw new ValidationException("Exchange rate ID must be positive for update.");
         }
-        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(UPDATE)) {
+        try (Connection connection = DataSourceConnectionProvider.getConnection();
+             PreparedStatement ps = connection.prepareStatement(UPDATE)) {
 
             Integer baseCurrencyId = baseCurrency.getId();
             Integer targetCurrencyId = targetCurrency.getId();
@@ -119,33 +136,34 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             ps.setInt(4, rate.getId());
             int rows = ps.executeUpdate();
             if (rows == 0) {
-                throw new NotFoundException(String.format("No exchange rate found with ID: %d. The record may have been deleted or never existed.", rate.getId()));
+                throw new NotFoundException(String.format("No exchange rate found with ID: %d. " +
+                        "The record may have been deleted or never existed.", rate.getId()));
             }
             log.debug("Successfully updated exchange rate ID: {}", rate.getId());
             return rate;
         } catch (SQLException e) {
             log.error("Failed to update exchange rate ID={}: {}", rate.getId(), e.getMessage(), e);
-            throw new DatabaseException(String.format("Error updating exchange rate with ID=%d: %s", rate.getId(), e.getMessage()), e);
+            throw new DatabaseException(
+                    String.format("Error updating exchange rate with ID=%d: %s", rate.getId(), e.getMessage()), e);
         }
     }
 
     @Override
     public Optional<ExchangeRate> getByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
-        Optional<Long> baseCurrencyIdOpt = currencyDao.findIdByCode(baseCurrencyCode);
-        Optional<Long> targetCurrencyIdOpt = currencyDao.findIdByCode(targetCurrencyCode);
-        if (baseCurrencyIdOpt.isEmpty() || targetCurrencyIdOpt.isEmpty()) {
-            log.warn("Currency codes not found: base={}, target={}", baseCurrencyCode, targetCurrencyCode);
-            return Optional.empty();
-        }
-        Long baseCurrencyId = baseCurrencyIdOpt.get();
-        Long targetCurrencyId = targetCurrencyIdOpt.get();
-        return getByCurrencyIds(baseCurrencyId, targetCurrencyId);
+        return executeQuery(SELECT_BY_CURRENCY_CODES, new Object[]{baseCurrencyCode, targetCurrencyCode}, rs -> {
+            try {
+                return createFrom(rs);
+            } catch (SQLException e) {
+                throw new DatabaseException("Error mapping ResultSet to ExchangeRate", e);
+            }
+        });
     }
 
 
     @Override
     public boolean existsByCurrencyPair(String baseCode, String targetCode) {
-        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES)) {
+        try (Connection connection = DataSourceConnectionProvider.getConnection();
+             PreparedStatement ps = connection.prepareStatement(EXISTS_EXCHANGE_RATE_BY_CURRENCY_CODES)) {
             ps.setString(1, baseCode.toUpperCase());
             ps.setString(2, targetCode.toUpperCase());
             ResultSet rs = ps.executeQuery();
@@ -156,27 +174,9 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         }
     }
 
-    private Optional<ExchangeRate> getByCurrencyIds(Long baseCurrencyId, Long targetCurrencyId) {
-        Optional<String> baseCodeOpt = currencyDao.findCodeById(baseCurrencyId);
-        Optional<String> targetCodeOpt = currencyDao.findCodeById(targetCurrencyId);
-
-        if (baseCodeOpt.isEmpty() || targetCodeOpt.isEmpty()) {
-            log.warn("Currency codes not found for IDs: base={}, target={}", baseCurrencyId, targetCurrencyId);
-            return Optional.empty();
-        }
-        String baseCode = baseCodeOpt.get();
-        String targetCode = targetCodeOpt.get();
-        return executeQuery(SELECT_BY_CURRENCY_CODES, new Object[]{baseCode, targetCode}, rs -> {
-            try {
-                return createFrom(rs);
-            } catch (SQLException e) {
-                throw new DatabaseException("Error mapping ResultSet to ExchangeRate", e);
-            }
-        });
-    }
-
     private <T> Optional<T> executeQuery(String sql, Object[] paramValues, Function<ResultSet, T> rowMapper) {
-        try (Connection connection = DataSourceConnectionProvider.getConnection(); PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection connection = DataSourceConnectionProvider.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (int i = 0; i < paramValues.length; i++) {
                 setParameter(ps, i + 1, paramValues[i]);
             }
@@ -224,7 +224,9 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         String targetCode = rs.getString("target_code");
         String targetName = rs.getString("target_name");
         String targetSign = rs.getString("target_sign");
-        log.debug("Mapping ExchangeRate from ResultSet: id={}, baseCurrencyId={}, targetCurrencyId={}, rate={}, " + "baseCode='{}', targetCode='{}'", id, baseCurrencyId, targetCurrencyId, rs.getBigDecimal("rate"), baseCode, targetCode);
+        log.debug("Mapping ExchangeRate from ResultSet: id={}, baseCurrencyId={}, targetCurrencyId={}, rate={}, " +
+                        "baseCode='{}', targetCode='{}'", id, baseCurrencyId, targetCurrencyId, rs.getBigDecimal("rate"),
+                baseCode, targetCode);
         Currency baseCurrency = new Currency(baseCurrencyId, baseName, baseCode, baseSign);
         Currency targetCurrency = new Currency(targetCurrencyId, targetName, targetCode, targetSign);
         return new ExchangeRate(id, baseCurrency, targetCurrency, rs.getBigDecimal("rate"));
@@ -253,7 +255,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         }
 
         if (!missingCurrencies.isEmpty()) {
-            throw new NotFoundException(String.format("Currency not found for codes: %s", String.join(", ", missingCurrencies)));
+            throw new NotFoundException(
+                    String.format("Currency not found for codes: %s", String.join(", ", missingCurrencies)));
         }
     }
 }
