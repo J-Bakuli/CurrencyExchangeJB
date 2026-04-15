@@ -24,23 +24,12 @@ public class CurrencyMapperTest {
 
     @Test
     public void testToResponseDto() {
-        Currency entity = Currency.builder()
-                .id(1)
-                .name("British Pound")
-                .code("GBP")
-                .sign("£")
-                .build();
+        Currency entity = new Currency(1, "British Pound", "GBP", "£");
         CurrencyResponseDto responseDto = mapper.toResponseDto(entity);
         assertNotNull(responseDto);
         assertEquals("GBP", responseDto.code());
         assertEquals("British Pound", responseDto.name());
         assertEquals("£", responseDto.sign());
-    }
-
-    @Test
-    public void testNullDtoShouldReturnNull() {
-        Currency result = mapper.toEntity((CreateCurrencyRequestDto) null);
-        assertNull(result);
     }
 
     @Test

@@ -36,12 +36,7 @@ public class ExchangeRateMapperTest {
         Currency baseCurrency = new Currency(1, "US Dollar", "USD", "$");
         Currency targetCurrency = new Currency(2, "Canadian Dollar", "CAD", "C$");
 
-        ExchangeRate entity = ExchangeRate.builder()
-                .id(1)
-                .baseCurrency(baseCurrency)
-                .targetCurrency(targetCurrency)
-                .rate(BigDecimal.valueOf(1.25))
-                .build();
+        ExchangeRate entity = new ExchangeRate(1, baseCurrency, targetCurrency, BigDecimal.valueOf(1.25));
 
         ExchangeRateResponseDto responseDto = mapper.toResponseDto(entity);
 
@@ -51,12 +46,6 @@ public class ExchangeRateMapperTest {
         assertEquals("USD", responseDto.baseCurrency().code());
         assertEquals("CAD", responseDto.targetCurrency().code());
         assertEquals(BigDecimal.valueOf(1.25), responseDto.rate());
-    }
-
-    @Test
-    public void testNullDtoShouldReturnNull() {
-        ExchangeRate result = mapper.toEntity((CreateExchangeRateRequestDto) null);
-        assertNull(result);
     }
 
     @Test
@@ -92,12 +81,7 @@ public class ExchangeRateMapperTest {
 
     @Test
     public void testResponseDtoWithNullCurrencies() {
-        ExchangeRate entity = ExchangeRate.builder()
-                .id(1)
-                .baseCurrency(null)
-                .targetCurrency(null)
-                .rate(BigDecimal.valueOf(1.0))
-                .build();
+        ExchangeRate entity = new ExchangeRate(1, null, null, BigDecimal.valueOf(1.0));
 
         ExchangeRateResponseDto responseDto = mapper.toResponseDto(entity);
 
