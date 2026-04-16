@@ -70,15 +70,6 @@ public class ExchangeRateService {
             Currency baseCurrency = baseCurrencyOpt.get();
             Currency targetCurrency = targetCurrencyOpt.get();
 
-            if (baseCurrency.getCode() == null || baseCurrency.getCode().trim().isEmpty()) {
-                log.error("Base currency code is invalid (null or empty): {}", baseCurrency);
-                throw new NotFoundException(baseCode);
-            }
-            if (targetCurrency.getCode() == null || targetCurrency.getCode().trim().isEmpty()) {
-                log.error("Target currency code is invalid (null or empty): {}", targetCurrency);
-                throw new NotFoundException(targetCode);
-            }
-
             ExchangeRate exchangeRate = mapper.toEntity(request);
             exchangeRate.setBaseCurrency(baseCurrency);
             exchangeRate.setTargetCurrency(targetCurrency);
