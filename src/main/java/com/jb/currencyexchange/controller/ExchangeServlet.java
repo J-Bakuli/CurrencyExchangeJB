@@ -25,9 +25,9 @@ public class ExchangeServlet extends BaseServlet {
             JdbcCurrencyDao currencyDao = new JdbcCurrencyDao();
             JdbcExchangeRateDao exchangeRateDao = new JdbcExchangeRateDao();
             this.exchangeRateCalculatorService = new ExchangeRateCalculatorService(currencyDao, exchangeRateDao);
-            log.info("CurrencyService is initialized successfully");
+            log.info("ExchangeService is initialized successfully");
         } catch (Exception e) {
-            log.error("CurrencyService initialization error", e);
+            log.error("ExchangeService initialization error", e);
             throw new ServletException("Failed to initialize service", e);
         }
     }
