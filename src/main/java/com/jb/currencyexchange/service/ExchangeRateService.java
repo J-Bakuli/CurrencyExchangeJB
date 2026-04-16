@@ -166,13 +166,9 @@ public class ExchangeRateService {
             CurrencyValidation.validateCurrencyCodes(baseCode, targetCode);
 
             Currency baseCurrency = currencyDao.getByCode(baseCode)
-                    .orElseThrow(() -> new NotFoundException(
-                            baseCode
-                    ));
+                    .orElseThrow(() -> new NotFoundException(baseCode));
             Currency targetCurrency = currencyDao.getByCode(targetCode)
-                    .orElseThrow(() -> new NotFoundException(
-                            targetCode
-                    ));
+                    .orElseThrow(() -> new NotFoundException(targetCode));
 
             Optional<ExchangeRate> existingRate = exchangeRateDao.getByCurrencyCodes(baseCode, targetCode);
             if (existingRate.isEmpty()) {
@@ -185,8 +181,6 @@ public class ExchangeRateService {
 
             ExchangeRate rateToUpdate = existingRate.get();
             rateToUpdate.setRate(request.rate());
-            rateToUpdate.setBaseCurrency(baseCurrency);
-            rateToUpdate.setTargetCurrency(targetCurrency);
 
             ExchangeRate updatedRate = exchangeRateDao.update(rateToUpdate);
             log.info("Successfully updated exchange rate: {}→{} = {} (ID: {})",

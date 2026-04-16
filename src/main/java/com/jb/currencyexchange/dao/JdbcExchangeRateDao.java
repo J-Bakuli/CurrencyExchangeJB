@@ -35,8 +35,7 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
             "c2.id as target_currency_id, c2.name as target_name, c2.code as target_code, c2.sign as target_sign " +
             "FROM exchange_rate er " + "JOIN currency c1 ON er.base_currency_id = c1.id " +
             "JOIN currency c2 ON er.target_currency_id = c2.id";
-    private static final String UPDATE = "UPDATE exchange_rate SET base_currency_id = ?, target_currency_id = ?, " +
-            "rate = ? " + "WHERE id = ?";
+    private static final String UPDATE = "UPDATE exchange_rate SET rate = ? " + "WHERE id = ?";
 
     @Override
     public ExchangeRate create(ExchangeRate rate) {
@@ -112,14 +111,8 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
         }
         try (Connection connection = DataSourceConnectionProvider.getConnection();
              PreparedStatement ps = connection.prepareStatement(UPDATE)) {
-
-            Integer baseCurrencyId = baseCurrency.getId();
-            Integer targetCurrencyId = targetCurrency.getId();
-            validateCurrencyIds(baseCurrency, targetCurrency);
-            ps.setInt(1, baseCurrencyId);
-            ps.setInt(2, targetCurrencyId);
-            ps.setBigDecimal(3, rate.getRate());
-            ps.setInt(4, rate.getId());
+            ps.setBigDecimal(1, rate.getRate());
+            ps.setInt(2, rate.getId());
             int rows = ps.executeUpdate();
             if (rows == 0) {
                 throw new NotFoundException(String.format("No exchange rate found with ID: %d. " +
