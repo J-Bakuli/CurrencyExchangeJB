@@ -1,9 +1,9 @@
 package com.jb.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jb.currencyexchange.exception.ExceptionHandler;
 import com.jb.currencyexchange.exception.ExceptionMessage;
 import com.jb.currencyexchange.exception.ValidationException;
-import com.jb.currencyexchange.mapper.ExceptionMapper;
 import com.jb.currencyexchange.util.JsonUtils;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import java.util.Map;
 public abstract class BaseServlet extends HttpServlet {
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String CHARSET_UTF8 = "UTF-8";
-    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
+    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
 
     protected <T> void sendJsonResponse(HttpServletResponse resp, T payload, int status) throws IOException {
         setResponseHeaders(resp);
@@ -80,7 +80,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void handleException(HttpServletResponse resp, Exception e) {
-        ExceptionMessage errorMsg = exceptionMapper.mapToMessage(e);
+        ExceptionMessage errorMsg = exceptionHandler.mapToMessage(e);
         if (errorMsg == null) {
             log.error("ExceptionMapper returned null for exception: {}", e.getClass().getSimpleName());
             errorMsg = ExceptionMessage.INTERNAL_ERROR;

@@ -1,14 +1,9 @@
-package com.jb.currencyexchange.mapper;
+package com.jb.currencyexchange.exception;
 
-import com.jb.currencyexchange.exception.AlreadyExistsException;
-import com.jb.currencyexchange.exception.DatabaseException;
-import com.jb.currencyexchange.exception.ExceptionMessage;
-import com.jb.currencyexchange.exception.NotFoundException;
-import com.jb.currencyexchange.exception.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ExceptionMapper {
+public class ExceptionHandler {
     public ExceptionMessage mapToMessage(Exception e) {
         log.debug("Mapping exception: {} - {}", e.getClass().getSimpleName(), e.getMessage());
 
