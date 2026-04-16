@@ -21,10 +21,6 @@ public class ExceptionMapper {
         } else if (e instanceof ValidationException || e instanceof IllegalArgumentException) {
             log.warn("Mapped {} to DATA_IS_INVALID (400): {}", e.getClass().getSimpleName(), e.getMessage());
             return ExceptionMessage.DATA_IS_INVALID;
-        } else if (e instanceof NullPointerException) {
-            log.error("NullPointerException occurred — check null safety in business logic");
-            log.error("Mapped {} to INTERNAL_ERROR (500): {}", e.getClass().getSimpleName(), e.getMessage(), e);
-            return ExceptionMessage.INTERNAL_ERROR;
         } else if (e instanceof DatabaseException) {
             log.error("Mapped {} to INTERNAL_ERROR (500): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             return ExceptionMessage.INTERNAL_ERROR;
