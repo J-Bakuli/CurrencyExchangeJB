@@ -9,7 +9,6 @@ import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
-import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,6 @@ public class CurrencyService {
         try {
             log.debug("Mapping DTO to entity: code='{}', name='{}', sign='{}'", requestDto.code(), requestDto.name(), requestDto.sign());
             Currency currency = mapper.toEntity(requestDto);
-            CurrencyValidation.validate(currency);
             String normalizedCode = requestDto.code().trim().toUpperCase();
             currency.setCode(normalizedCode);
 
