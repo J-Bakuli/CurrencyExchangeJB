@@ -9,7 +9,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
 import com.jb.currencyexchange.util.CommonValidationUtils;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -18,9 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 public class ExchangeRateCalculatorService {
-    @Getter
     private final CurrencyDao currencyDao;
-    @Getter
     private final ExchangeRateDao exchangeRateDao;
     private static final int ROUND_SCALE = 6;
     private static final int AMOUNT_SCALE = 2;

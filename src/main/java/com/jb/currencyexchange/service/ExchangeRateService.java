@@ -16,7 +16,6 @@ import com.jb.currencyexchange.validation.business.CurrencyBusinessValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
 import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -26,7 +25,6 @@ import java.util.Optional;
 
 @Slf4j
 public class ExchangeRateService {
-    @Getter
     private final ExchangeRateDao exchangeRateDao;
     private final CurrencyDao currencyDao;
     private final CurrencyBusinessValidation currencyBusinessValidation;

@@ -10,7 +10,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -20,7 +19,6 @@ import static com.jb.currencyexchange.util.CommonValidationUtils.isUniqueConstra
 
 @Slf4j
 public class CurrencyService {
-    @Getter
     private final CurrencyDao currencyDao;
     private final CurrencyMapper mapper;
 
