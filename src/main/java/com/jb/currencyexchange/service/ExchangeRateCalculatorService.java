@@ -6,6 +6,7 @@ import com.jb.currencyexchange.dto.ExchangeResultDto;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
 import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
+import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
 import com.jb.currencyexchange.util.CommonValidationUtils;
@@ -17,11 +18,13 @@ import java.util.Optional;
 
 @Slf4j
 public class ExchangeRateCalculatorService {
-    private final CurrencyDao currencyDao;
-    private final ExchangeRateDao exchangeRateDao;
     private static final int ROUND_SCALE = 6;
     private static final int AMOUNT_SCALE = 2;
     private static final String USD_CODE = "USD";
+
+    private final CurrencyDao currencyDao;
+    private final ExchangeRateDao exchangeRateDao;
+    private final CurrencyMapper currencyMapper = CurrencyMapper.INSTANCE;
 
     public ExchangeRateCalculatorService(CurrencyDao currencyDao, ExchangeRateDao exchangeRateDao) {
         this.currencyDao = currencyDao;
@@ -77,26 +80,9 @@ public class ExchangeRateCalculatorService {
 
     private ExchangeResultDto createResultDto(Currency from, Currency to, BigDecimal rate, BigDecimal amount) {
         BigDecimal converted = amount.multiply(rate).setScale(AMOUNT_SCALE, RoundingMode.HALF_UP);
-        CurrencyResponseDto baseCurrencyDto = new CurrencyResponseDto(
-                from.getId(),
-                from.getName(),
-                from.getCode(),
-                from.getSign()
-        );
+        CurrencyResponseDto baseCurrencyDto = currencyMapper.toResponseDto(from);
+        CurrencyResponseDto targetCurrencyDto = currencyMapper.toResponseDto(to);
 
-        CurrencyResponseDto targetCurrencyDto = new CurrencyResponseDto(
-                to.getId(),
-                to.getName(),
-                to.getCode(),
-                to.getSign()
-        );
-
-        return new ExchangeResultDto(
-                baseCurrencyDto,
-                targetCurrencyDto,
-                rate,
-                amount,
-                converted
-        );
+        return new ExchangeResultDto(baseCurrencyDto, targetCurrencyDto, rate, amount, converted);
     }
 }
