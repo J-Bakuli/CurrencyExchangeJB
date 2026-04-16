@@ -94,36 +94,6 @@ public class JdbcCurrencyDao implements CurrencyDao {
         }
     }
 
-    public Optional<String> findCodeById(Long currencyId) {
-        String sql = "SELECT code FROM currency WHERE id = ?";
-        try (Connection connection = DataSourceConnectionProvider.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, currencyId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(rs.getString("code"));
-                }
-            }
-        } catch (SQLException e) {
-            log.error("Error finding currency code by ID: {}", currencyId, e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Long> findIdByCode(String code) {
-        String sql = "SELECT id FROM currency WHERE code = ?";
-        try (Connection connection = DataSourceConnectionProvider.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, code.toUpperCase());
-            ResultSet rs = ps.executeQuery();
-            return rs.next() ? Optional.of(rs.getLong("id")) : Optional.empty();
-        } catch (SQLException e) {
-            log.error("Error finding currency ID for code={}: {}", code, e.getMessage(), e);
-            throw new DatabaseException("Failed to find currency ID: " + code, e);
-        }
-    }
-
     private Optional<Currency> executeQuery(String sql, Object paramValue) {
         try (Connection connection = DataSourceConnectionProvider.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {

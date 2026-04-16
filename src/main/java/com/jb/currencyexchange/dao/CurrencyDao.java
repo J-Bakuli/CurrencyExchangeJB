@@ -6,8 +6,4 @@ import java.util.Optional;
 
 public interface CurrencyDao extends BaseDao<Currency> {
     Optional<Currency> getByCode(String code);
-
-    Optional<Long> findIdByCode(String code);
-
-    Optional<String> findCodeById(Long currencyId);
 }
