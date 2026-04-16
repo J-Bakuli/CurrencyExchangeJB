@@ -21,6 +21,7 @@ public class ExchangeRateCalculatorService {
     private final ExchangeRateDao exchangeRateDao;
     private static final int ROUND_SCALE = 6;
     private static final int AMOUNT_SCALE = 2;
+    private static final String USD_CODE = "USD";
 
     public ExchangeRateCalculatorService(CurrencyDao currencyDao, ExchangeRateDao exchangeRateDao) {
         this.currencyDao = currencyDao;
@@ -49,10 +50,9 @@ public class ExchangeRateCalculatorService {
             return createResultDto(from, to, directRate, amount);
         }
 
-        String baseCode = "USD";
-        if (!fromCode.equals(baseCode) && !toCode.equals(baseCode)) {
-            Optional<ExchangeRate> usdToFrom = exchangeRateDao.getByCurrencyCodes(baseCode, fromCode);
-            Optional<ExchangeRate> usdToTo = exchangeRateDao.getByCurrencyCodes(baseCode, toCode);
+        if (!fromCode.equals(USD_CODE) && !toCode.equals(USD_CODE)) {
+            Optional<ExchangeRate> usdToFrom = exchangeRateDao.getByCurrencyCodes(USD_CODE, fromCode);
+            Optional<ExchangeRate> usdToTo = exchangeRateDao.getByCurrencyCodes(USD_CODE, toCode);
 
             if (usdToFrom.isPresent() && usdToTo.isPresent()) {
                 BigDecimal rate = usdToTo.get().getRate()
