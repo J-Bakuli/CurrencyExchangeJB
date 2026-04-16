@@ -1,5 +1,7 @@
 package com.jb.currencyexchange.db;
 
+import com.jb.currencyexchange.exception.ValidationException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +38,7 @@ public class DatabaseInitializer {
     private static String readResourceAsString(String resourcePath) {
         try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
             if (in == null) {
-                throw new IllegalStateException("Resource not found: " + resourcePath);
+                throw new ValidationException("Resource not found: " + resourcePath);
             }
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {

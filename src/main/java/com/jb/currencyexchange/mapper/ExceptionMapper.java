@@ -18,7 +18,7 @@ public class ExceptionMapper {
         } else if (e instanceof AlreadyExistsException) {
             log.warn("Mapped {} to ALREADY_EXISTS (409): {}", e.getClass().getSimpleName(), e.getMessage());
             return ExceptionMessage.ALREADY_EXISTS;
-        } else if (e instanceof ValidationException || e instanceof IllegalArgumentException) {
+        } else if (e instanceof ValidationException) {
             log.warn("Mapped {} to DATA_IS_INVALID (400): {}", e.getClass().getSimpleName(), e.getMessage());
             return ExceptionMessage.DATA_IS_INVALID;
         } else if (e instanceof DatabaseException) {

@@ -109,7 +109,7 @@ public abstract class BaseServlet extends HttpServlet {
             return mappedError.getMessage();
         }
 
-        if (e instanceof ValidationException || e instanceof IllegalArgumentException) {
+        if (e instanceof ValidationException) {
             return detailedMessage;
         }
 
