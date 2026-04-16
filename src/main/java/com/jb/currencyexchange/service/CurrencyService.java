@@ -12,10 +12,7 @@ import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.SQLException;
 import java.util.List;
-
-import static com.jb.currencyexchange.util.CommonValidationUtils.isUniqueConstraintViolation;
 
 @Slf4j
 public class CurrencyService {
@@ -52,17 +49,9 @@ public class CurrencyService {
         } catch (AlreadyExistsException e) {
             log.warn("Attempt to create duplicate currency with code={}", requestDto.code());
             throw e;
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof SQLException sqlEx && isUniqueConstraintViolation(sqlEx)) {
-                log.warn("Duplicate currency code detected at DB level: {}", requestDto.code(), e);
-                throw new AlreadyExistsException(
-                        String.format("Currency with code '%s' already exists", requestDto.code()), e);
-            } else {
-                log.error("Failed to create currency with code={}: {}",
-                        requestDto.code(), e.getMessage(), e);
-                throw new DatabaseException(
-                        String.format("Failed to create currency with code=%s", requestDto.code()), e);
-            }
+        } catch (DatabaseException e) {
+            log.error("Failed to create currency with code={}: {}", requestDto.code(), e.getMessage(), e);
+            throw new DatabaseException(String.format("Failed to create currency with code=%s", requestDto.code()), e);
         }
     }
 
