@@ -81,6 +81,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
             ps.setString(1, currency.getName());
             ps.setString(2, currency.getCode());
             ps.setString(3, currency.getSign());
+            ps.setInt(4, currency.getId());
             int rows = ps.executeUpdate();
             if (rows == 0) {
                 log.warn("No currency found with ID {} for update, code: {}", currency.getId(), currency.getCode());
