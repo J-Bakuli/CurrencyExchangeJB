@@ -2,7 +2,6 @@ package com.jb.currencyexchange.controller;
 
 import com.jb.currencyexchange.dao.JdbcCurrencyDao;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
-import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.service.CurrencyService;
@@ -42,9 +41,6 @@ public class CurrencyServlet extends BaseServlet {
                 );
             }
             CurrencyResponseDto currency = currencyService.getByCode(code);
-            if (currency == null) {
-                throw new NotFoundException(code);
-            }
             sendSuccessResponse(resp, currency);
         } catch (Exception e) {
             handleException(resp, e);
