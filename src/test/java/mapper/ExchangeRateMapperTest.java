@@ -1,6 +1,5 @@
 package mapper;
 
-import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.model.Currency;
@@ -13,23 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExchangeRateMapperTest {
     private final ExchangeRateMapper mapper = ExchangeRateMapper.INSTANCE;
-
-    @Test
-    public void testCreateExchangeRateRequestDto() {
-        CreateExchangeRateRequestDto dto = new CreateExchangeRateRequestDto(
-                "USD", "EUR", BigDecimal.valueOf(0.85)
-        );
-        ExchangeRate entity = mapper.toEntity(dto);
-
-        assertNotNull(entity);
-        assertNotNull(entity.getBaseCurrency());
-        assertNotNull(entity.getTargetCurrency());
-
-        assertEquals("USD", entity.getBaseCurrency().getCode());
-        assertEquals("EUR", entity.getTargetCurrency().getCode());
-        assertEquals(BigDecimal.valueOf(0.85), entity.getRate());
-        assertNull(entity.getId());
-    }
 
     @Test
     public void testResponseDto() {
@@ -55,28 +37,17 @@ public class ExchangeRateMapperTest {
     }
 
     @Test
-    public void testWithEmptyFields() {
-        CreateExchangeRateRequestDto dto = new CreateExchangeRateRequestDto("", "", BigDecimal.ZERO);
-        ExchangeRate entity = mapper.toEntity(dto);
+    public void testResponseDtoWithNullRate() {
+        Currency baseCurrency = new Currency(1, "US Dollar", "USD", "$");
+        Currency targetCurrency = new Currency(2, "Euro", "EUR", "€");
+        ExchangeRate entity = new ExchangeRate(1, baseCurrency, targetCurrency, null);
 
-        assertNotNull(entity);
-        assertNotNull(entity.getBaseCurrency());
-        assertNotNull(entity.getTargetCurrency());
+        ExchangeRateResponseDto responseDto = mapper.toResponseDto(entity);
 
-        assertEquals("", entity.getBaseCurrency().getCode());
-        assertEquals("", entity.getTargetCurrency().getCode());
-        assertEquals(BigDecimal.ZERO, entity.getRate());
-    }
-
-    @Test
-    public void testCurrencyCodesAreTrimmedAndUppercased() {
-        CreateExchangeRateRequestDto dto = new CreateExchangeRateRequestDto(
-                " usd ", " eur ", BigDecimal.valueOf(0.85)
-        );
-        ExchangeRate entity = mapper.toEntity(dto);
-
-        assertEquals("USD", entity.getBaseCurrency().getCode());
-        assertEquals("EUR", entity.getTargetCurrency().getCode());
+        assertNotNull(responseDto);
+        assertNull(responseDto.rate());
+        assertEquals("USD", responseDto.baseCurrency().code());
+        assertEquals("EUR", responseDto.targetCurrency().code());
     }
 
     @Test

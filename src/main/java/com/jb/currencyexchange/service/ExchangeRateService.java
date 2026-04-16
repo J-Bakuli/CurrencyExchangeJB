@@ -70,9 +70,7 @@ public class ExchangeRateService {
             Currency baseCurrency = baseCurrencyOpt.get();
             Currency targetCurrency = targetCurrencyOpt.get();
 
-            ExchangeRate exchangeRate = mapper.toEntity(request);
-            exchangeRate.setBaseCurrency(baseCurrency);
-            exchangeRate.setTargetCurrency(targetCurrency);
+            ExchangeRate exchangeRate = new ExchangeRate(null, baseCurrency, targetCurrency, request.rate());
 
             ExchangeRateValidation.validate(exchangeRate);
             ExchangeRate created = exchangeRateDao.create(exchangeRate);
