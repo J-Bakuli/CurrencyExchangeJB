@@ -8,7 +8,6 @@ import com.jb.currencyexchange.service.CurrencyService;
 import com.jb.currencyexchange.util.StringUtils;
 import com.jb.currencyexchange.validation.business.InputSecurityValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
-import com.jb.currencyexchange.validation.structural.DtoValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,7 +63,6 @@ public class CurrenciesServlet extends BaseServlet {
             InputSecurityValidation.validateCurrencyWrite(name, code, sign);
             CurrencyValidation.validate(name, code, sign);
             CreateCurrencyRequestDto requestDto = new CreateCurrencyRequestDto(name, code, sign);
-            DtoValidation.validate(requestDto);
             CurrencyResponseDto createdDto = currencyService.create(requestDto);
             log.info("Currency created successfully: code='{}'", code);
             sendCreationSuccessResponse(resp, createdDto);
