@@ -100,7 +100,8 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDto getRate(String baseCode, String targetCode) {
-        CurrencyValidation.validateCurrencyCodes(baseCode, targetCode);
+        CurrencyValidation.validateCurrencyCode(baseCode);
+        CurrencyValidation.validateCurrencyCode(targetCode);
         String pair = baseCode.toUpperCase() + "/" + targetCode.toUpperCase();
         log.info("Fetching exchange rate for pair {}", pair);
 
@@ -146,7 +147,8 @@ public class ExchangeRateService {
         log.info("Starting update of exchange rate for pair {}", pair);
 
         try {
-            CurrencyValidation.validateCurrencyCodes(baseCode, targetCode);
+            CurrencyValidation.validateCurrencyCode(baseCode);
+            CurrencyValidation.validateCurrencyCode(targetCode);
 
             Currency baseCurrency = currencyDao.getByCode(baseCode)
                     .orElseThrow(() -> new NotFoundException(baseCode));

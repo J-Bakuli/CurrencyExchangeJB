@@ -14,8 +14,8 @@ import static com.jb.currencyexchange.util.CommonValidationUtils.*;
 public class ExchangeRateValidation {
     public static void validateExchangeParams(String from, String to, String amountStr) {
         List<String> errors = new ArrayList<>();
-        CurrencyValidation.validateCurrencyCode(from, "'from'", errors);
-        CurrencyValidation.validateCurrencyCode(to, "'to'", errors);
+        CurrencyValidation.validateCurrencyCode(from);
+        CurrencyValidation.validateCurrencyCode(to);
 
         if (isBlank(amountStr)) {
             errors.add("'amount' parameter is required");

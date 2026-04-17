@@ -25,7 +25,7 @@ public class DtoValidation {
                 "sign", dto.sign()
         ), (value, fieldName) -> {
             if ("code".equals(fieldName)) {
-                CurrencyValidation.validateCurrencyCode(value, fieldName, errors);
+                CurrencyValidation.validateCurrencyCode(value);
             } else if ("name".equals(fieldName)) {
                 validateString(value, fieldName, 1, NAME_MAX_LENGTH, null, null, errors);
             } else if ("sign".equals(fieldName)) {
@@ -39,8 +39,8 @@ public class DtoValidation {
 
     public static void validate(CreateExchangeRateRequestDto dto) {
         List<String> errors = new ArrayList<>();
-        CurrencyValidation.validateCurrencyCode(dto.baseCode(), "baseCode", errors);
-        CurrencyValidation.validateCurrencyCode(dto.targetCode(), "targetCode", errors);
+        CurrencyValidation.validateCurrencyCode(dto.baseCode());
+        CurrencyValidation.validateCurrencyCode(dto.targetCode());
         validateNumber(dto.rate(), "rate", RATE_MAX_INTEGER_DIGITS, RATE_MAX_FRACTION_DIGITS, errors);
         throwValidationExceptionIfErrors(errors);
     }

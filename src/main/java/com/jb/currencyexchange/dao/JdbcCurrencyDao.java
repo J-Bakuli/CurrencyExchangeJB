@@ -27,7 +27,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
     public Currency create(Currency currency) {
         String normalizedCode = currency.getCode().trim().toUpperCase();
         currency.setCode(normalizedCode);
-        CurrencyValidation.validate(currency);
+        CurrencyValidation.validateCurrency(currency.getName(), currency.getCode(), currency.getSign());
         log.debug("Creating currency: id={}, name={}, code={} ", currency.getId(), currency.getName(), currency.getCode());
         try (Connection connection = DataSourceConnectionProvider.getConnection();
              PreparedStatement ps = connection.prepareStatement(CREATE, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -71,7 +71,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
 
     @Override
     public Currency update(Currency currency) {
-        CurrencyValidation.validate(currency);
+        CurrencyValidation.validateCurrency(currency.getName(), currency.getCode(), currency.getSign());
         log.debug("Updating currency with ID: {}, code: {}", currency.getId(), currency.getCode());
         if (currency.getId() <= 0) {
             throw new ValidationException("Currency ID must be positive for update");

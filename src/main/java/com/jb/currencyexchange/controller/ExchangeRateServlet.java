@@ -58,7 +58,8 @@ public class ExchangeRateServlet extends BaseServlet {
             baseCode = pair[0];
             targetCode = pair[1];
             log.info("GET /exchangeRate/{} - fetching rate for {}/{}", normalizedPath, baseCode, targetCode);
-            CurrencyValidation.validateCurrencyCodes(baseCode, targetCode);
+            CurrencyValidation.validateCurrencyCode(baseCode);
+            CurrencyValidation.validateCurrencyCode(targetCode);
             ExchangeRateResponseDto exchangeRate = exchangeRateService.getRate(baseCode, targetCode);
             sendSuccessResponse(resp, exchangeRate);
         } catch (Exception e) {

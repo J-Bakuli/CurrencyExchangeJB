@@ -61,7 +61,7 @@ public class CurrenciesServlet extends BaseServlet {
                 sign != null ? sign : "null");
         try {
             InputSecurityValidation.validateCurrencyWrite(name, code, sign);
-            CurrencyValidation.validate(name, code, sign);
+            CurrencyValidation.validateCurrency(name, code, sign);
             CreateCurrencyRequestDto requestDto = new CreateCurrencyRequestDto(name, code, sign);
             CurrencyResponseDto createdDto = currencyService.create(requestDto);
             log.info("Currency created successfully: code='{}'", code);
