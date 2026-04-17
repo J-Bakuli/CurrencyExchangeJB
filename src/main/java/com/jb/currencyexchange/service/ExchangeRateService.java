@@ -12,7 +12,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
-import com.jb.currencyexchange.validation.business.CurrencyBusinessValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
 import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
@@ -27,14 +26,11 @@ import java.util.Optional;
 public class ExchangeRateService {
     private final ExchangeRateDao exchangeRateDao;
     private final CurrencyDao currencyDao;
-    private final CurrencyBusinessValidation currencyBusinessValidation;
     private final ExchangeRateMapper mapper;
 
-    public ExchangeRateService(ExchangeRateDao exchangeRateDao, CurrencyDao currencyDao,
-                               CurrencyBusinessValidation currencyBusinessValidation, ExchangeRateMapper mapper) {
+    public ExchangeRateService(ExchangeRateDao exchangeRateDao, CurrencyDao currencyDao, ExchangeRateMapper mapper) {
         this.exchangeRateDao = exchangeRateDao;
         this.currencyDao = currencyDao;
-        this.currencyBusinessValidation = currencyBusinessValidation;
         this.mapper = mapper;
     }
 
@@ -114,8 +110,8 @@ public class ExchangeRateService {
                 log.warn("Exchange rate not found for pair {}", pair);
                 throw new NotFoundException("Rate not found for pair " + pair);
             }
-            currencyBusinessValidation.validateCodePresence(baseCode);
-            currencyBusinessValidation.validateCodePresence(targetCode);
+            validateCodePresence(baseCode);
+            validateCodePresence(targetCode);
 
             ExchangeRate rate = rateOpt.get();
             ExchangeRateValidation.validate(rate);
@@ -186,6 +182,13 @@ public class ExchangeRateService {
             throw new DatabaseException(
                     String.format("Failed to update exchange rate for currency pair %s", pair), e
             );
+        }
+    }
+
+    private void validateCodePresence(String code) {
+        String normalizedCode = code == null ? null : code.trim().toUpperCase();
+        if (normalizedCode == null || normalizedCode.isEmpty() || currencyDao.getByCode(normalizedCode).isEmpty()) {
+            throw new NotFoundException(code);
         }
     }
 }

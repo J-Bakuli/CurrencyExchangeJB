@@ -10,7 +10,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import com.jb.currencyexchange.util.PathUtils;
-import com.jb.currencyexchange.validation.business.CurrencyBusinessValidation;
 import com.jb.currencyexchange.validation.business.InputSecurityValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import com.jb.currencyexchange.validation.structural.DtoValidation;
@@ -32,12 +31,10 @@ public class ExchangeRateServlet extends BaseServlet {
         try {
             ExchangeRateDao exchangeRateDao = new JdbcExchangeRateDao();
             CurrencyDao currencyDao = new JdbcCurrencyDao();
-            CurrencyBusinessValidation validation = new CurrencyBusinessValidation(currencyDao);
             ExchangeRateMapper mapper = ExchangeRateMapper.INSTANCE;
             this.exchangeRateService = new ExchangeRateService(
                     exchangeRateDao,
                     currencyDao,
-                    validation,
                     mapper
             );
             log.info("ExchangeRateService is initialized successfully");
