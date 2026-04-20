@@ -9,7 +9,7 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
-import com.jb.currencyexchange.util.CommonValidationUtils;
+import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -32,7 +32,7 @@ public class ExchangeRateCalculatorService {
     }
 
     public ExchangeResultDto calculate(String fromCode, String toCode, BigDecimal amount) {
-        CommonValidationUtils.validateExchangeRequestParams(fromCode, toCode, amount);
+        ExchangeRateValidation.validateRateParams(fromCode, toCode, amount);
 
         Currency from = getCurrencyOrThrow(fromCode);
         Currency to = getCurrencyOrThrow(toCode);

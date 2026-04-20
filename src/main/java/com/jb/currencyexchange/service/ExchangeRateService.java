@@ -13,7 +13,6 @@ import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
-import com.jb.currencyexchange.validation.structural.DtoValidation;
 import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +34,7 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDto create(CreateExchangeRateRequestDto request) {
-        DtoValidation.validate(request);
+        ExchangeRateValidation.validateRateParams(request.baseCode(), request.targetCode(), request.rate());
 
         String baseCode = request.baseCode().trim().toUpperCase();
         String targetCode = request.targetCode().trim().toUpperCase();
@@ -68,7 +67,6 @@ public class ExchangeRateService {
 
             ExchangeRate exchangeRate = new ExchangeRate(null, baseCurrency, targetCurrency, request.rate());
 
-            ExchangeRateValidation.validate(exchangeRate);
             ExchangeRate created = exchangeRateDao.create(exchangeRate);
 
             log.info("Successfully created exchange rate: {} → {} = {}, baseCurrencyCode={}, targetCurrencyCode={}",
@@ -115,7 +113,6 @@ public class ExchangeRateService {
             validateCodePresence(targetCode);
 
             ExchangeRate rate = rateOpt.get();
-            ExchangeRateValidation.validate(rate);
             log.debug("Found exchange rate for {}→{}: {}", baseCode, targetCode, rate.getRate());
             return mapper.toResponseDto(rate);
         } catch (NotFoundException e) {
@@ -139,7 +136,7 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDto update(UpdateExchangeRateRequestDto request) {
-        DtoValidation.validate(request);
+        ExchangeRateValidation.validateRateParams(request.baseCode(), request.targetCode(), request.rate());
 
         String baseCode = request.baseCode().trim().toUpperCase();
         String targetCode = request.targetCode().trim().toUpperCase();

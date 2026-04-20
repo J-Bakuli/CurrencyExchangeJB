@@ -39,7 +39,7 @@ public class ExchangeServlet extends BaseServlet {
         String amountStr = StringUtils.cleanString(req.getParameter("amount"));
         log.info("GET /exchange from={}, to={}, amount={}", from, to, amountStr);
         try {
-            ExchangeRateValidation.validateExchangeParams(from, to, amountStr);
+            ExchangeRateValidation.validateRateParams(from, to, amountStr);
             BigDecimal amount = new BigDecimal(amountStr.trim());
             ExchangeResultDto resultDto = exchangeRateCalculatorService.calculate(from, to, amount);
             sendSuccessResponse(resp, resultDto);

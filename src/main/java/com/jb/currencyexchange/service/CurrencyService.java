@@ -9,7 +9,7 @@ import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.model.Currency;
-import com.jb.currencyexchange.validation.structural.DtoValidation;
+import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class CurrencyService {
     }
 
     public CurrencyResponseDto create(CreateCurrencyRequestDto requestDto) {
-        DtoValidation.validate(requestDto);
+        CurrencyValidation.validateCurrency(requestDto.name(), requestDto.code(), requestDto.sign());
         try {
             log.debug("Mapping DTO to entity: code='{}', name='{}', sign='{}'", requestDto.code(), requestDto.name(), requestDto.sign());
             Currency currency = mapper.toEntity(requestDto);
@@ -48,7 +48,7 @@ public class CurrencyService {
             return mapper.toResponseDto(savedCurrency);
         } catch (AlreadyExistsException e) {
             log.warn("Attempt to create duplicate currency with code={}", requestDto.code());
-            throw e;
+            throw new AlreadyExistsException(String.format("Attempt to create duplicate currency with code=%s", requestDto.code()));
         } catch (DatabaseException e) {
             log.error("Failed to create currency with code={}: {}", requestDto.code(), e.getMessage(), e);
             throw new DatabaseException(String.format("Failed to create currency with code=%s", requestDto.code()), e);
