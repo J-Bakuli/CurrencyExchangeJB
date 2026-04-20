@@ -34,9 +34,9 @@ public class ExchangeServlet extends BaseServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        String from = StringUtils.cleanString(req.getParameter("from"));
-        String to = StringUtils.cleanString(req.getParameter("to"));
-        String amountStr = StringUtils.cleanString(req.getParameter("amount"));
+        String from = StringUtils.cleanString(req.getParameter("from"), "from");
+        String to = StringUtils.cleanString(req.getParameter("to"), "to");
+        String amountStr = StringUtils.cleanString(req.getParameter("amount"), "amount");
         log.info("GET /exchange from={}, to={}, amount={}", from, to, amountStr);
         try {
             ExchangeRateValidation.validateRateParams(from, to, amountStr);

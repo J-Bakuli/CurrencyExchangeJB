@@ -52,9 +52,9 @@ public class CurrenciesServlet extends BaseServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        String name = StringUtils.cleanString(req.getParameter("name"));
-        String code = StringUtils.cleanString(req.getParameter("code"));
-        String sign = StringUtils.cleanString(req.getParameter("sign"));
+        String name = StringUtils.cleanString(req.getParameter("name"), "name");
+        String code = StringUtils.cleanString(req.getParameter("code"), "code");
+        String sign = StringUtils.cleanString(req.getParameter("sign"), "sign");
         log.info("POST /currencies - received: name='{}', code='{}', sign='{}'",
                 name != null ? name : "null",
                 code != null ? code : "null",
