@@ -7,7 +7,6 @@ import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
 import com.jb.currencyexchange.model.ExchangeRate;
-import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -39,7 +38,6 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
 
     @Override
     public ExchangeRate create(ExchangeRate rate) {
-        ExchangeRateValidation.validate(rate);
         Currency baseCurrency = rate.getBaseCurrency();
         Currency targetCurrency = rate.getTargetCurrency();
         log.debug("Creating exchange rate: {} -> {} = {}", baseCurrency.getCode(), targetCurrency.getCode(), rate.getRate());
@@ -101,7 +99,6 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
 
     @Override
     public ExchangeRate update(ExchangeRate rate) {
-        ExchangeRateValidation.validate(rate);
         Currency baseCurrency = rate.getBaseCurrency();
         Currency targetCurrency = rate.getTargetCurrency();
         log.debug("Updating exchange rate: ID={}, {} -> {} = {}", rate.getId(), baseCurrency.getCode(),
