@@ -1,6 +1,5 @@
 package com.jb.currencyexchange.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jb.currencyexchange.exception.ExceptionHandler;
 import com.jb.currencyexchange.exception.ExceptionMessage;
 import com.jb.currencyexchange.exception.ValidationException;
@@ -50,7 +49,6 @@ public abstract class BaseServlet extends HttpServlet {
         String safeMessage = message != null ? message : "Unknown error";
         String safeCode = code != null && !code.isBlank() ? code : "error";
         try (PrintWriter writer = resp.getWriter()) {
-            ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> error = new LinkedHashMap<>();
             error.put("code", safeCode);
             error.put("message", safeMessage);
@@ -58,7 +56,7 @@ public abstract class BaseServlet extends HttpServlet {
             if (details != null && !details.isEmpty()) {
                 error.put("details", details);
             }
-            String jsonError = mapper.writeValueAsString(error);
+            String jsonError = JsonUtils.writeJson(error);
             writer.write(jsonError);
             writer.flush();
         } catch (IOException e) {
