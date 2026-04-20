@@ -50,11 +50,12 @@ Tomcat + WAR
    - конфиг подключения: `src/main/resources/datasource.properties`
    - JDBC URL по умолчанию: `jdbc:sqlite:src/main/resources/db/currency_exchange.db`
 3. Если нужен другой путь к БД — поменяйте `jdbcUrl` в `datasource.properties`.
-4. Фронт использует относительные API URL (`currencies`, `exchangeRates`, `exchange`):
-   - это одновременно корректно для локального запуска в Tomcat под `/CurrencyExchangeJB`;
-   - и для публичного деплоя за `nginx` reverse proxy на `/`.
+4. Фронт использует относительные API URL (`currencies`, `exchangeRates`, `exchange`) и автоматически определяет context path:
+   - локально в Tomcat запросы уходят под `/CurrencyExchangeJB`;
+   - за `nginx` reverse proxy — в корень `/`.
 5. Разверните `target/CurrencyExchangeJB.war` в локальный Tomcat и запустите его.
-6. Быстрая проверка:
+6. После изменения `js` делайте `Ctrl+F5` (hard refresh), чтобы браузер не использовал старый кэш.
+7. Быстрая проверка:
    - `/currencies`
    - `/exchangeRates`
    - `/exchange?from=USD&to=EUR&amount=10`

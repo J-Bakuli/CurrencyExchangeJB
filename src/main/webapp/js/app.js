@@ -1,8 +1,7 @@
 $(document).ready(function() {
-    // Relative host keeps requests correct in both environments:
-    // 1) local run in Tomcat under /CurrencyExchangeJB
-    // 2) public deployment behind nginx reverse proxy on /
-    const host = "";
+    // Auto-detect app context path: works for local Tomcat (/CurrencyExchangeJB)
+    // and for root deployment behind nginx reverse proxy ("").
+    const host = (window.location.pathname.match(/^\/[^/.]+(?=\/|$)/) || [""])[0];
 
     function showApiErrorToast(jqXHR) {
         let errorMessage = "An unknown error occurred";
