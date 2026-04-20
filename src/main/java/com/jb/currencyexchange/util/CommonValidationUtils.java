@@ -9,6 +9,7 @@ public final class CommonValidationUtils {
     public static final int SIGN_MAX_LENGTH = 3;
     public static final int RATE_MAX_INTEGER_DIGITS = 10;
     public static final int RATE_MAX_FRACTION_DIGITS = 6;
+    public static final int CURRENCY_PAIR_LENGTH = 6;
     public static final int AMOUNT_MAX_SCALE = 6;
     public static final int AMOUNT_MAX_DIGITS = 20;
     public static final Pattern CODE_PATTERN = Pattern.compile("^[A-Z]{3}$");

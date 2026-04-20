@@ -13,17 +13,17 @@ public final class PathUtils {
     public static String extractCurrencyCode(HttpServletRequest request) {
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.trim().equals("/")) {
-            return null;
+            throw new ValidationException("Currency code path is required, e.g. /USD");
         }
 
         String[] segments = pathInfo.split("/");
         if (segments.length != 2 || segments[1].isEmpty()) {
-            return null;
+            throw new ValidationException("Invalid path format. Expected /{CODE}, e.g. /USD");
         }
 
         String code = segments[1].trim();
-        if (code.length() != 3) {
-            return null;
+        if (code.length() != (CommonValidationUtils.CURRENCY_PAIR_LENGTH)/2) {
+            throw new ValidationException("Currency code must be exactly 3 characters long");
         }
         return code;
     }
@@ -39,13 +39,15 @@ public final class PathUtils {
         pathInfo = pathInfo.replaceAll("^/+", "");
         log.debug("Cleaned pathInfo: {}", pathInfo);
 
-        if (pathInfo.length() != 6) {
-            log.warn("Currency pair length is not 6: {}", pathInfo);
-            throw new ValidationException("Currency pair must be 6 characters long");
+        if (pathInfo.length() != CommonValidationUtils.CURRENCY_PAIR_LENGTH) {
+            log.warn("Currency pair length is not {}: {}", CommonValidationUtils.CURRENCY_PAIR_LENGTH, pathInfo);
+            throw new ValidationException(
+                    String.format("Currency pair must be %d characters long", CommonValidationUtils.CURRENCY_PAIR_LENGTH)
+            );
         }
 
-        String baseCode = pathInfo.substring(0, 3);
-        String targetCode = pathInfo.substring(3, 6);
+        String baseCode = pathInfo.substring(0, (CommonValidationUtils.CURRENCY_PAIR_LENGTH)/2);
+        String targetCode = pathInfo.substring((CommonValidationUtils.CURRENCY_PAIR_LENGTH)/2, CommonValidationUtils.CURRENCY_PAIR_LENGTH);
         log.debug("Parsed currencies: base={}, target={}", baseCode, targetCode);
 
         return new String[]{baseCode, targetCode};
