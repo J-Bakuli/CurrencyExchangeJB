@@ -1,17 +1,11 @@
 package com.jb.currencyexchange.util;
 
-import com.jb.currencyexchange.exception.ValidationException;
-
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 public final class CommonValidationUtils {
+    public static final int NAME_MIN_LENGTH = 2;
     public static final int NAME_MAX_LENGTH = 50;
-    public static final int SIGN_MIN_LENGTH = 1;
     public static final int SIGN_MAX_LENGTH = 3;
     public static final int RATE_MAX_INTEGER_DIGITS = 10;
     public static final int RATE_MAX_FRACTION_DIGITS = 6;
@@ -24,93 +18,40 @@ public final class CommonValidationUtils {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
-    public static void validateString(
-            String value,
-            String fieldName,
-            int minLength,
-            int maxLength,
-            Pattern pattern,
-            String patternMsg,
-            List<String> errors
-    ) {
-        if (isBlank(value)) {
-            errors.add(fieldName + " cannot be null or empty");
-            return;
-        }
-        if (value.length() < minLength || value.length() > maxLength) {
-            errors.add(fieldName + " must be from " + minLength + " to " + maxLength + " characters");
-        }
-        if (pattern != null && !pattern.matcher(value).matches()) {
-            errors.add(fieldName + " " + patternMsg);
-        }
-    }
-
     public static void validateNumber(
             BigDecimal value,
             String fieldName,
-            int maxIntegerDigits,
+            int maxDigits,
             int maxFractionDigits,
-            List<String> errors
+            boolean validateTotalDigits
     ) {
         if (value == null) {
-            errors.add(fieldName + " must be non-null");
-            return;
+            throw new NumberFormatException(fieldName + " must be non-null");
         }
         if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            errors.add(fieldName + " must be positive");
-            return;
+            throw new NumberFormatException(fieldName + " must be positive");
         }
 
-        int scale = value.stripTrailingZeros().scale();
-        int integerDigits = value.precision() - Math.max(scale, 0);
+        BigDecimal normalized = value.stripTrailingZeros();
+        int scale = normalized.scale();
+        int totalDigits = normalized.precision();
+        int integerDigits = normalized.precision() - Math.max(scale, 0);
 
-        if (integerDigits > maxIntegerDigits) {
-            errors.add(fieldName + " must have at most " + maxIntegerDigits + " integer digits");
+        if (validateTotalDigits) {
+            if (totalDigits > maxDigits) {
+                throw new NumberFormatException(fieldName + " must contain at most " + maxDigits + " digits");
+            }
+        } else if (integerDigits > maxDigits) {
+            throw new NumberFormatException(fieldName + " must have at most " + maxDigits + " integer digits");
         }
+
         if (scale > maxFractionDigits) {
-            errors.add(fieldName + " must have at most " + maxFractionDigits + " fractional digits");
+            throw new NumberFormatException(fieldName + " must have at most " + maxFractionDigits + " fractional digits");
         }
     }
 
-    public static void validateExchangeRequestParams(String fromCode, String toCode, BigDecimal amount) {
-        validateCurrencyCode(fromCode, "from");
-        validateCurrencyCode(toCode, "to");
-
-        if (amount == null) {
-            throw new ValidationException("Amount cannot be null");
-        }
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ValidationException("Amount must be non-negative");
-        }
-    }
-
-    private static void validateCurrencyCode(String code, String paramName) {
-        if (code == null || code.trim().isEmpty()) {
-            throw new ValidationException("Currency '" + paramName + "' code cannot be null or empty");
-        }
-    }
-
-    public static void validateFields(
-            Map<String, String> fields,
-            BiConsumer<String, String> validator
-    ) {
-        fields.forEach((fieldName, value) -> validator.accept(value, fieldName));
-    }
 
     public static boolean isBlank(String str) {
         return str == null || str.trim().isEmpty();
-    }
-
-    public static void throwValidationExceptionIfErrors(List<String> errors) {
-        if (!errors.isEmpty()) {
-            throw new ValidationException("Validation failed: " + String.join("; ", errors));
-        }
-    }
-
-    public static boolean isUniqueConstraintViolation(SQLException e) {
-        String message = e.getMessage().toLowerCase();
-
-        return message.contains("unique constraint failed") ||
-                message.contains("column code is not unique");
     }
 }

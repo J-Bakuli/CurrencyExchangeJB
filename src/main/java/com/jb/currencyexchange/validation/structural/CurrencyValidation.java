@@ -7,10 +7,10 @@ public class CurrencyValidation {
     public static void validateCurrency(String name, String code, String sign) {
         if (CommonValidationUtils.isBlank(name)) {
             throw new ValidationException("Name cannot be null or empty");
-        } else if (name.length() < 2) {
-            throw new ValidationException("Name must be at least 2 characters long");
-        } else if (name.length() > 100) {
-            throw new ValidationException("Name must not exceed 100 characters");
+        } else if (name.length() < CommonValidationUtils.NAME_MIN_LENGTH) {
+            throw new ValidationException(String.format("Name must be at least %d characters long", CommonValidationUtils.NAME_MIN_LENGTH));
+        } else if (name.length() > CommonValidationUtils.NAME_MAX_LENGTH) {
+            throw new ValidationException(String.format("Name must not exceed %d characters", CommonValidationUtils.NAME_MAX_LENGTH));
         } else if (!name.matches("^[a-zA-Z0-9\\s\\p{Sc}]{2,100}$")) {
             throw new ValidationException("Name contains invalid characters. Only Latin letters, digits, spaces and currency symbols allowed");
         }
