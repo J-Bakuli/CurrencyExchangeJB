@@ -20,7 +20,7 @@ public class ExchangeRateValidation {
                 CommonValidationUtils.validateNumber(
                         amount, "amount", AMOUNT_MAX_DIGITS, AMOUNT_MAX_SCALE, true);
             } catch (NumberFormatException e) {
-                throw new ValidationException("Amount must be a valid number");
+                throw new ValidationException(e.getMessage(), e);
             }
         }
     }
@@ -32,7 +32,7 @@ public class ExchangeRateValidation {
             CommonValidationUtils.validateNumber(
                     rate, "rate", RATE_MAX_INTEGER_DIGITS, RATE_MAX_FRACTION_DIGITS, false);
         } catch (NumberFormatException e) {
-            throw new ValidationException("Rate must be a valid number");
+            throw new ValidationException(e.getMessage(), e);
         }
     }
 }

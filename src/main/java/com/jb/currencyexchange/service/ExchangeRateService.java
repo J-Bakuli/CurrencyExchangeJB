@@ -34,12 +34,12 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDto create(CreateExchangeRateRequestDto request) {
-        ExchangeRateValidation.validateRateParams(request.baseCode(), request.targetCode(), request.rate());
-
         String baseCode = request.baseCode().trim().toUpperCase();
         String targetCode = request.targetCode().trim().toUpperCase();
         BigDecimal rate = request.rate();
         String pair = baseCode + "-" + targetCode;
+
+        ExchangeRateValidation.validateRateParams(baseCode, targetCode, rate);
 
         log.info("Creating exchange rate: {} → {} = {}", baseCode, targetCode, rate);
 
@@ -65,7 +65,7 @@ public class ExchangeRateService {
             Currency baseCurrency = baseCurrencyOpt.get();
             Currency targetCurrency = targetCurrencyOpt.get();
 
-            ExchangeRate exchangeRate = new ExchangeRate(null, baseCurrency, targetCurrency, request.rate());
+            ExchangeRate exchangeRate = new ExchangeRate(null, baseCurrency, targetCurrency, rate);
 
             ExchangeRate created = exchangeRateDao.create(exchangeRate);
 
@@ -78,7 +78,6 @@ public class ExchangeRateService {
             );
 
             return mapper.toResponseDto(created);
-
         } catch (NotFoundException e) {
             log.warn("Currency not found for pair {}: {}", pair, e.getMessage());
             throw e;
@@ -136,10 +135,11 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDto update(UpdateExchangeRateRequestDto request) {
-        ExchangeRateValidation.validateRateParams(request.baseCode(), request.targetCode(), request.rate());
-
         String baseCode = request.baseCode().trim().toUpperCase();
         String targetCode = request.targetCode().trim().toUpperCase();
+
+        ExchangeRateValidation.validateRateParams(baseCode, targetCode, request.rate());
+
         String pair = baseCode + "-" + targetCode;
         log.info("Starting update of exchange rate for pair {}", pair);
 
