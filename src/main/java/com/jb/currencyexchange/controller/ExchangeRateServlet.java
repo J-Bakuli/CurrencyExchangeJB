@@ -10,7 +10,6 @@ import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import com.jb.currencyexchange.util.PathUtils;
-import com.jb.currencyexchange.validation.business.InputSecurityValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -71,7 +70,6 @@ public class ExchangeRateServlet extends BaseServlet {
         try {
             log.info("Handling PATCH /exchangeRate request for path: {}", req.getPathInfo());
             UpdateExchangeRateRequestDto dto = parseUpdateRequest(req);
-            InputSecurityValidation.validateExchangeRateWrite(dto.baseCode(), dto.targetCode());
             ExchangeRateResponseDto updatedRate = exchangeRateService.update(dto);
             sendSuccessResponse(resp, updatedRate);
         } catch (Exception e) {

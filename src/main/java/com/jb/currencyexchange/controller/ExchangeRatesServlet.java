@@ -9,7 +9,6 @@ import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.service.ExchangeRateService;
-import com.jb.currencyexchange.validation.business.InputSecurityValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +56,6 @@ public class ExchangeRatesServlet extends BaseServlet {
         try {
             log.info("Handling POST /exchangeRates request");
             CreateExchangeRateRequestDto dto = parseCreateRequest(req);
-            InputSecurityValidation.validateExchangeRateWrite(dto.baseCode(), dto.targetCode());
             ExchangeRateResponseDto result = exchangeRateService.create(dto);
             sendCreationSuccessResponse(resp, result);
         } catch (Exception e) {

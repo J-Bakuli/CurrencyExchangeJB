@@ -60,7 +60,7 @@ public class CurrenciesServlet extends BaseServlet {
                 code != null ? code : "null",
                 sign != null ? sign : "null");
         try {
-            InputSecurityValidation.validateCurrencyWrite(name, code, sign);
+            InputSecurityValidation.validateCurrencyNameWrite(name);
             CurrencyValidation.validateCurrency(name, code, sign);
             CreateCurrencyRequestDto requestDto = new CreateCurrencyRequestDto(name, code, sign);
             CurrencyResponseDto createdDto = currencyService.create(requestDto);
