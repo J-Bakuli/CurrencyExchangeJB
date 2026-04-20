@@ -3,7 +3,7 @@ package com.jb.currencyexchange.util;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
-public final class CommonValidationUtils {
+public final class ValidationUtils {
     public static final int NAME_MIN_LENGTH = 2;
     public static final int NAME_MAX_LENGTH = 50;
     public static final int SIGN_MAX_LENGTH = 3;
@@ -15,7 +15,7 @@ public final class CommonValidationUtils {
     public static final Pattern CODE_PATTERN = Pattern.compile("^[A-Z]{3}$");
     public static final Pattern SIGN_PATTERN = Pattern.compile("^[a-zA-Z\\p{Sc}]{1,3}$");
 
-    private CommonValidationUtils() {
+    private ValidationUtils() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
@@ -50,7 +50,6 @@ public final class CommonValidationUtils {
             throw new NumberFormatException(fieldName + " must have at most " + maxFractionDigits + " fractional digits");
         }
     }
-
 
     public static boolean isBlank(String str) {
         return str == null || str.trim().isEmpty();
