@@ -30,8 +30,6 @@ public class DataSourceConnectionProvider {
             HIKARI_CONFIG.addDataSourceProperty("synchronous", "NORMAL");
 
             HIKARI_DATA_SOURCE = new HikariDataSource(HIKARI_CONFIG);
-            initializeDatabase();
-            registerShutdownHook();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load datasource properties", e);
         }
@@ -50,23 +48,12 @@ public class DataSourceConnectionProvider {
         return connection;
     }
 
-    private static void initializeDatabase() {
-        try (Connection conn = getConnection()) {
-            DatabaseInitializer.init(conn);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialize database", e);
+    public static void close() {
+        if (!HIKARI_DATA_SOURCE.isClosed()) {
+            HIKARI_DATA_SOURCE.close();
+            log.info("HikariCP connection pool closed successfully");
+        } else {
+            log.debug("HikariCP pool was already closed");
         }
-    }
-
-    private static void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Shutdown hook triggered, closing HikariCP pool");
-            if (!HIKARI_DATA_SOURCE.isClosed()) {
-                HIKARI_DATA_SOURCE.close();
-                log.info("HikariCP connection pool closed successfully");
-            } else {
-                log.debug("HikariCP pool was already closed");
-            }
-        }));
     }
 }
