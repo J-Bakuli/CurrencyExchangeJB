@@ -40,6 +40,7 @@ build/
 
 # Tools and local scripts
 *.sh
+*.ps1
 README-tools.md
 
 # Docker

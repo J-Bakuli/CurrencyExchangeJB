@@ -1,7 +1,6 @@
 package com.jb.currencyexchange.controller;
 
-import com.jb.currencyexchange.dao.JdbcCurrencyDao;
-import com.jb.currencyexchange.dao.JdbcExchangeRateDao;
+import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.ExchangeResultDto;
 import com.jb.currencyexchange.service.ExchangeRateCalculatorService;
 import com.jb.currencyexchange.util.StringUtils;
@@ -21,14 +20,9 @@ public class ExchangeServlet extends BaseServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            JdbcCurrencyDao currencyDao = new JdbcCurrencyDao();
-            JdbcExchangeRateDao exchangeRateDao = new JdbcExchangeRateDao();
-            this.exchangeRateCalculatorService = new ExchangeRateCalculatorService(currencyDao, exchangeRateDao);
-            log.info("ExchangeService is initialized successfully");
-        } catch (Exception e) {
-            log.error("ExchangeService initialization error", e);
-            throw new ServletException("Failed to initialize service", e);
+        exchangeRateCalculatorService = (ExchangeRateCalculatorService) getServletContext().getAttribute(AppLifecycleListener.EXCHANGE_CALCULATOR_SERVICE_ATTR);
+        if (exchangeRateCalculatorService == null) {
+            throw new ServletException("ExchangeRateCalculatorService is not initialized");
         }
     }
 

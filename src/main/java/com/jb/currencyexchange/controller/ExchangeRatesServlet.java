@@ -1,13 +1,9 @@
 package com.jb.currencyexchange.controller;
 
-import com.jb.currencyexchange.dao.CurrencyDao;
-import com.jb.currencyexchange.dao.ExchangeRateDao;
-import com.jb.currencyexchange.dao.JdbcCurrencyDao;
-import com.jb.currencyexchange.dao.JdbcExchangeRateDao;
+import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.exception.ValidationException;
-import com.jb.currencyexchange.mapper.ExchangeRateMapper;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -25,19 +21,9 @@ public class ExchangeRatesServlet extends BaseServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            ExchangeRateDao exchangeRateDao = new JdbcExchangeRateDao();
-            CurrencyDao currencyDao = new JdbcCurrencyDao();
-            ExchangeRateMapper mapper = ExchangeRateMapper.INSTANCE;
-            this.exchangeRateService = new ExchangeRateService(
-                    exchangeRateDao,
-                    currencyDao,
-                    mapper
-            );
-            log.info("ExchangeRateService is initialized successfully");
-        } catch (Exception e) {
-            log.error("ExchangeRateService initialization error", e);
-            throw new ServletException("Failed to initialize service", e);
+        exchangeRateService = (ExchangeRateService) getServletContext().getAttribute(AppLifecycleListener.EXCHANGE_RATE_SERVICE_ATTR);
+        if (exchangeRateService == null) {
+            throw new ServletException("ExchangeRateService is not initialized");
         }
     }
 

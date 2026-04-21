@@ -1,9 +1,8 @@
 package com.jb.currencyexchange.controller;
 
-import com.jb.currencyexchange.dao.JdbcCurrencyDao;
+import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.request.CreateCurrencyRequestDto;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
-import com.jb.currencyexchange.mapper.CurrencyMapper;
 import com.jb.currencyexchange.service.CurrencyService;
 import com.jb.currencyexchange.util.StringUtils;
 import com.jb.currencyexchange.validation.business.InputSecurityValidation;
@@ -24,14 +23,9 @@ public class CurrenciesServlet extends BaseServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            JdbcCurrencyDao currencyDao = new JdbcCurrencyDao();
-            CurrencyMapper mapper = CurrencyMapper.INSTANCE;
-            this.currencyService = new CurrencyService(currencyDao, mapper);
-            log.info("CurrencyService is initialized successfully");
-        } catch (Exception e) {
-            log.error("CurrencyService initialization error", e);
-            throw new ServletException("Failed to initialize service", e);
+        currencyService = (CurrencyService) getServletContext().getAttribute(AppLifecycleListener.CURRENCY_SERVICE_ATTR);
+        if (currencyService == null) {
+            throw new ServletException("CurrencyService is not initialized");
         }
     }
 
