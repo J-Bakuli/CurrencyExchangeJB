@@ -4,7 +4,6 @@ import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.request.CreateCurrencyRequestDto;
 import com.jb.currencyexchange.dto.response.CurrencyResponseDto;
 import com.jb.currencyexchange.service.CurrencyService;
-import com.jb.currencyexchange.util.StringUtils;
 import com.jb.currencyexchange.validation.business.InputSecurityValidation;
 import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import jakarta.servlet.ServletException;
@@ -46,9 +45,9 @@ public class CurrenciesServlet extends BaseServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        String name = StringUtils.cleanString(req.getParameter("name"), "name");
-        String code = StringUtils.cleanString(req.getParameter("code"), "code");
-        String sign = StringUtils.cleanString(req.getParameter("sign"), "sign");
+        String name = req.getParameter("name");
+        String code = req.getParameter("code");
+        String sign = req.getParameter("sign");
         log.info("POST /currencies - received: name='{}', code='{}', sign='{}'",
                 name != null ? name : "null",
                 code != null ? code : "null",

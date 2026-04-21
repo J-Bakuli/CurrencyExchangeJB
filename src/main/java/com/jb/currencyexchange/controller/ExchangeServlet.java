@@ -3,7 +3,6 @@ package com.jb.currencyexchange.controller;
 import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.ExchangeResultDto;
 import com.jb.currencyexchange.service.ExchangeRateCalculatorService;
-import com.jb.currencyexchange.util.StringUtils;
 import com.jb.currencyexchange.validation.structural.ExchangeRateValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,9 +27,9 @@ public class ExchangeServlet extends BaseServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        String from = StringUtils.cleanString(req.getParameter("from"), "from");
-        String to = StringUtils.cleanString(req.getParameter("to"), "to");
-        String amountStr = StringUtils.cleanString(req.getParameter("amount"), "amount");
+        String from = req.getParameter("from");
+        String to = req.getParameter("to");
+        String amountStr = req.getParameter("amount");
         log.info("GET /exchange from={}, to={}, amount={}", from, to, amountStr);
         try {
             ExchangeRateValidation.validateRateParams(from, to, amountStr);
