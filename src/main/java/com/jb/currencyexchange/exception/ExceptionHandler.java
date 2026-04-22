@@ -24,4 +24,15 @@ public class ExceptionHandler {
             return ExceptionMessage.INTERNAL_ERROR;
         }
     }
+
+    public String resolveClientMessage(Exception e, ExceptionMessage mappedMessage) {
+        String detailedMessage = e.getMessage();
+        if (detailedMessage == null || detailedMessage.isBlank()) {
+            return mappedMessage.getMessage();
+        }
+        if (e instanceof ValidationException) {
+            return detailedMessage;
+        }
+        return mappedMessage.getMessage();
+    }
 }

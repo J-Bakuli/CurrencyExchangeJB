@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
 @WebServlet("/currency/*")
 @Slf4j
 public class CurrencyServlet extends BaseServlet {
@@ -25,20 +27,16 @@ public class CurrencyServlet extends BaseServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        try {
-            String code = PathUtils.extractCurrencyCode(req);
-            log.info("GET /currency/{}", code);
-            if (code == null || code.trim().isEmpty()) {
-                throw new ValidationException(
-                        "Currency code is missing. Expected format: /currency/{CODE} (3 characters)"
-                );
-            }
-            CurrencyResponseDto currency = currencyService.getByCode(code);
-            sendSuccessResponse(resp, currency);
-        } catch (Exception e) {
-            handleException(resp, e);
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String code = PathUtils.extractCurrencyCode(req);
+        log.info("GET /currency/{}", code);
+        if (code == null || code.trim().isEmpty()) {
+            throw new ValidationException(
+                    "Currency code is missing. Expected format: /currency/{CODE} (3 characters)"
+            );
         }
+        CurrencyResponseDto currency = currencyService.getByCode(code);
+        sendSuccessResponse(resp, currency);
     }
 
     @Override

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,22 +30,18 @@ public class CurrenciesServlet extends BaseServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        try {
-            log.info("GET /currencies getAll()");
-            List<CurrencyResponseDto> dtos = currencyService.getAll();
-            if (dtos.isEmpty()) {
-                sendSuccessResponse(resp, Collections.emptyList());
-                return;
-            }
-            sendSuccessResponse(resp, dtos);
-        } catch (Exception e) {
-            handleException(resp, e);
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        log.info("GET /currencies getAll()");
+        List<CurrencyResponseDto> dtos = currencyService.getAll();
+        if (dtos.isEmpty()) {
+            sendSuccessResponse(resp, Collections.emptyList());
+            return;
         }
+        sendSuccessResponse(resp, dtos);
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String name = req.getParameter("name");
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
@@ -52,16 +49,13 @@ public class CurrenciesServlet extends BaseServlet {
                 name != null ? name : "null",
                 code != null ? code : "null",
                 sign != null ? sign : "null");
-        try {
-            InputSecurityValidation.validateCurrencyNameWrite(name);
-            CurrencyValidation.validateCurrency(name, code, sign);
-            CreateCurrencyRequestDto requestDto = new CreateCurrencyRequestDto(name, code, sign);
-            CurrencyResponseDto createdDto = currencyService.create(requestDto);
-            log.info("Currency created successfully: code='{}'", code);
-            sendCreationSuccessResponse(resp, createdDto);
-        } catch (Exception e) {
-            handleException(resp, e);
-        }
+
+        InputSecurityValidation.validateCurrencyNameWrite(name);
+        CurrencyValidation.validateCurrency(name, code, sign);
+        CreateCurrencyRequestDto requestDto = new CreateCurrencyRequestDto(name, code, sign);
+        CurrencyResponseDto createdDto = currencyService.create(requestDto);
+        log.info("Currency created successfully: code='{}'", code);
+        sendCreationSuccessResponse(resp, createdDto);
     }
 
     @Override

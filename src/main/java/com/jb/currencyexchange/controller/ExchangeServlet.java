@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @WebServlet("/exchange")
@@ -26,19 +27,15 @@ public class ExchangeServlet extends BaseServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String from = req.getParameter("from");
         String to = req.getParameter("to");
         String amountStr = req.getParameter("amount");
         log.info("GET /exchange from={}, to={}, amount={}", from, to, amountStr);
-        try {
-            ExchangeRateValidation.validateRateParams(from, to, amountStr);
-            BigDecimal amount = new BigDecimal(amountStr.trim());
-            ExchangeResultDto resultDto = exchangeRateCalculatorService.calculate(from, to, amount);
-            sendSuccessResponse(resp, resultDto);
-        } catch (Exception e) {
-            handleException(resp, e);
-        }
+        ExchangeRateValidation.validateRateParams(from, to, amountStr);
+        BigDecimal amount = new BigDecimal(amountStr.trim());
+        ExchangeResultDto resultDto = exchangeRateCalculatorService.calculate(from, to, amount);
+        sendSuccessResponse(resp, resultDto);
     }
 
     @Override

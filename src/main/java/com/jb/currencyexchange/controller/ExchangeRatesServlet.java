@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -28,25 +29,17 @@ public class ExchangeRatesServlet extends BaseServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        try {
-            List<ExchangeRateResponseDto> rates = exchangeRateService.getAllRates();
-            sendJsonResponse(resp, rates, HttpServletResponse.SC_OK);
-        } catch (Exception e) {
-            handleException(resp, e);
-        }
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        List<ExchangeRateResponseDto> rates = exchangeRateService.getAllRates();
+        sendJsonResponse(resp, rates, HttpServletResponse.SC_OK);
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        try {
-            log.info("Handling POST /exchangeRates request");
-            CreateExchangeRateRequestDto dto = parseCreateRequest(req);
-            ExchangeRateResponseDto result = exchangeRateService.create(dto);
-            sendCreationSuccessResponse(resp, result);
-        } catch (Exception e) {
-            handleException(resp, e);
-        }
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        log.info("Handling POST /exchangeRates request");
+        CreateExchangeRateRequestDto dto = parseCreateRequest(req);
+        ExchangeRateResponseDto result = exchangeRateService.create(dto);
+        sendCreationSuccessResponse(resp, result);
     }
 
     @Override
