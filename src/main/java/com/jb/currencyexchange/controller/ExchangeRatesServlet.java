@@ -4,6 +4,8 @@ import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.exception.ValidationException;
+import com.jb.currencyexchange.parser.ExchangeRateRequestParser;
+import com.jb.currencyexchange.parser.ParseResult;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @WebServlet("/exchangeRates")
@@ -41,7 +42,12 @@ public class ExchangeRatesServlet extends BaseServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             log.info("Handling POST /exchangeRates request");
-            CreateExchangeRateRequestDto dto = parseCreateRequest(req);
+            ParseResult<CreateExchangeRateRequestDto> parseResult = ExchangeRateRequestParser.parseCreateRequest(req);
+            if (!parseResult.isSuccess()) {
+                log.warn("Failed to parse request: {}", parseResult.getErrorMessage());
+                throw new ValidationException(parseResult.getErrorMessage());
+            }
+            CreateExchangeRateRequestDto dto = parseResult.getData();
             ExchangeRateResponseDto result = exchangeRateService.create(dto);
             sendCreationSuccessResponse(resp, result);
         } catch (Exception e) {
@@ -52,26 +58,5 @@ public class ExchangeRatesServlet extends BaseServlet {
     @Override
     public void destroy() {
         log.info("Destroying Servlet 'ExchangeRatesServlet' — application is shutting down");
-    }
-
-    private CreateExchangeRateRequestDto parseCreateRequest(HttpServletRequest req) {
-        String baseCode;
-        String targetCode;
-        BigDecimal rate;
-        try {
-            baseCode = req.getParameter("baseCode");
-            targetCode = req.getParameter("targetCode");
-            String rateStrParam = req.getParameter("rate");
-            if (rateStrParam == null || rateStrParam.trim().isEmpty()) {
-                log.warn("Rate is missing or blank.");
-                throw new ValidationException("Rate is required. It must be a valid decimal number.");
-            }
-            rate = new BigDecimal(rateStrParam.trim());
-        } catch (NumberFormatException e) {
-            log.warn("Rate must be a valid decimal number.");
-            throw new ValidationException("Rate must be a valid decimal number.");
-        }
-
-        return new CreateExchangeRateRequestDto(baseCode, targetCode, rate);
     }
 }
