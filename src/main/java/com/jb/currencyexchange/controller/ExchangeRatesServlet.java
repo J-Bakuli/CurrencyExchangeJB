@@ -4,8 +4,6 @@ import com.jb.currencyexchange.db.AppLifecycleListener;
 import com.jb.currencyexchange.dto.request.CreateExchangeRateRequestDto;
 import com.jb.currencyexchange.dto.response.ExchangeRateResponseDto;
 import com.jb.currencyexchange.exception.ValidationException;
-import com.jb.currencyexchange.parser.ExchangeRateRequestParser;
-import com.jb.currencyexchange.parser.ParseResult;
 import com.jb.currencyexchange.service.ExchangeRateService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @WebServlet("/exchangeRates")
@@ -42,12 +41,7 @@ public class ExchangeRatesServlet extends BaseServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             log.info("Handling POST /exchangeRates request");
-            ParseResult<CreateExchangeRateRequestDto> parseResult = ExchangeRateRequestParser.parseCreateRequest(req);
-            if (!parseResult.isSuccess()) {
-                log.warn("Failed to parse request: {}", parseResult.getErrorMessage());
-                throw new ValidationException(parseResult.getErrorMessage());
-            }
-            CreateExchangeRateRequestDto dto = parseResult.getData();
+            CreateExchangeRateRequestDto dto = parseCreateRequest(req);
             ExchangeRateResponseDto result = exchangeRateService.create(dto);
             sendCreationSuccessResponse(resp, result);
         } catch (Exception e) {
@@ -58,5 +52,28 @@ public class ExchangeRatesServlet extends BaseServlet {
     @Override
     public void destroy() {
         log.info("Destroying Servlet 'ExchangeRatesServlet' — application is shutting down");
+    }
+
+    private CreateExchangeRateRequestDto parseCreateRequest(HttpServletRequest req) {
+        String baseCode = requiredParam(req, "baseCurrencyCode", "Base currency code is required.");
+        String targetCode = requiredParam(req, "targetCurrencyCode", "Target currency code is required.");
+        BigDecimal rate = parseRate(requiredParam(req, "rate", "Rate is required. It must be a valid decimal number."));
+        return new CreateExchangeRateRequestDto(baseCode, targetCode, rate);
+    }
+
+    private String requiredParam(HttpServletRequest req, String parameterName, String errorMessage) {
+        String value = req.getParameter(parameterName);
+        if (value == null || value.trim().isEmpty()) {
+            throw new ValidationException(errorMessage);
+        }
+        return value;
+    }
+
+    private BigDecimal parseRate(String rawRate) {
+        try {
+            return new BigDecimal(rawRate.trim());
+        } catch (NumberFormatException e) {
+            throw new ValidationException("Rate must be a valid decimal number.");
+        }
     }
 }
