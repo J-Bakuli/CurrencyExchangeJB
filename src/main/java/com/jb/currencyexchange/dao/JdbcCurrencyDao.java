@@ -1,11 +1,11 @@
 package com.jb.currencyexchange.dao;
 
 import com.jb.currencyexchange.db.DataSourceConnectionProvider;
+import com.jb.currencyexchange.exception.AlreadyExistsException;
 import com.jb.currencyexchange.exception.DatabaseException;
 import com.jb.currencyexchange.exception.NotFoundException;
 import com.jb.currencyexchange.exception.ValidationException;
 import com.jb.currencyexchange.model.Currency;
-import com.jb.currencyexchange.validation.structural.CurrencyValidation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -30,9 +30,12 @@ public class JdbcCurrencyDao implements CurrencyDao {
         log.debug("Creating currency: id={}, name={}, code={} ", currency.getId(), currency.getName(), currency.getCode());
         try (Connection connection = DataSourceConnectionProvider.getConnection();
              PreparedStatement ps = connection.prepareStatement(CREATE, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, currency.getName());
-            ps.setString(2, currency.getCode());
-            ps.setString(3, currency.getSign());
+            String name = currency.getName();
+            String code = currency.getCode();
+            String sign = currency.getSign();
+            ps.setString(1, name);
+            ps.setString(2, code);
+            ps.setString(3, sign);
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -41,6 +44,10 @@ public class JdbcCurrencyDao implements CurrencyDao {
             }
             return currency;
         } catch (SQLException e) {
+            if (isUniqueConstraintViolation(e)) {
+                throw new AlreadyExistsException(
+                        String.format("Currency already exists with code=%s", currency.getCode()), e);
+            }
             log.error("Error creating currency: id={}, name={}, code={},: {}", currency.getId(), currency.getName(),
                     currency.getCode(), e.getMessage(), e);
             throw new DatabaseException("Failed to create currency id={}" + currency.getId(), e);
@@ -120,5 +127,11 @@ public class JdbcCurrencyDao implements CurrencyDao {
                 rs.getString("code"),
                 rs.getString("sign")
         );
+    }
+
+    public static boolean isUniqueConstraintViolation(SQLException e) {
+        String message = e.getMessage().toLowerCase();
+        return message.contains("unique constraint failed") ||
+                message.contains("column code is not unique");
     }
 }
